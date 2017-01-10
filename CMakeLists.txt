@@ -5,6 +5,18 @@ project(GothicMultiplayerLauncher)
 # executable name
 set(TARGET_NAME gml)
 
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Network REQUIRED)
+
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+include_directories(${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
+
 # the following line provides the
 # different build types
 # BEWARE that if you change something
@@ -28,11 +40,11 @@ if (MSVC)
 	ADD_DEFINITIONS(-DUNICODE)
 	ADD_DEFINITIONS(-D_UNICODE)
 
-elseif (MINGW)
+else()
 
 	# MINGW
 	# fill the build definitions for the MinGW build subsystem in here
-	SET(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall -static")
+        SET(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
 	SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -Os -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
 		-Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables	\
 		-ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections, -Wl,--strip-all")
@@ -58,6 +70,15 @@ file (GLOB_RECURSE INCLUDE_FILES
 # list source files to variables
 file (GLOB_RECURSE SRC_FILES
 		src/*.cpp
+)
+
+# list ui files to variables
+file(GLOB_RECURSE UI_FILES
+    src/*.ui
+)
+
+set(RC_FILE
+    resource/resource.qrc
 )
 
 # set up filter groups for the file lists
@@ -86,17 +107,21 @@ if (MSVC OR MINGW)
 			"<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 endif()
 
+qt5_wrap_ui(UI_HEADERS ${UI_FILES})
+
 # set up build pathes and add the executable definition
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${RES_FILES})
+    add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
 elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    add_executable(${TARGET_NAME} WIN32 ${INCLUDE_FILES} ${SRC_FILES} ${RES_FILES})
+    add_executable(${TARGET_NAME} WIN32 ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
 else ()
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-	add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${RES_FILES})
+        add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
 endif()
+
+target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network)
 
 # FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
 if (WIN32)
