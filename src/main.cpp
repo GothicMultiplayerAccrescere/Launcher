@@ -8,7 +8,7 @@
 int main(int argc, char *argv[])
 {
     QApplication::setApplicationDisplayName("Gothic Launcher");
-    QApplication::setApplicationName("GMP Laucnher");
+    QApplication::setApplicationName("GMP Launcher");
     QApplication::setApplicationVersion("v0.0.1");
     QApplication::setOrganizationDomain("");
     QApplication::setOrganizationName("Arcanum Softworks");

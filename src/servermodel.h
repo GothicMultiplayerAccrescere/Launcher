@@ -61,8 +61,10 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const override;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
+    virtual bool removeRows(int row, int count, const QModelIndex &parent) override;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
 private:
     QVector<Server> m_Server;
+public:
 };

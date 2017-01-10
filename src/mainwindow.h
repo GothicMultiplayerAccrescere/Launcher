@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QHash>
+#include <QSet>
 #include <QString>
 
 class ServerModel;
@@ -20,4 +20,5 @@ public:
 private:
     Ui::MainWindow *m_pUi;
     ServerModel *m_pServerModel;
+    QSet<QString> m_ServerNames;
 };

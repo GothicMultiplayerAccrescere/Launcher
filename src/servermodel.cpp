@@ -99,10 +99,20 @@ bool ServerModel::insertRows(int row, int count, const QModelIndex &parent)
         return false;
 
     beginInsertRows(parent, row, row + count - 1);
-    for(int i = 0; i < count; ++i)
-        m_Server.insert(row + i, Server());
+    m_Server.insert(row, count, Server());
     endInsertRows();
 
+    return true;
+}
+
+bool ServerModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if(parent.isValid() || row + count > m_Server.size())
+        return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+    m_Server.remove(row, count);
+    endRemoveRows();
     return true;
 }
 
