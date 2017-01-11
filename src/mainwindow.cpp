@@ -27,8 +27,7 @@ MainWindow::MainWindow() :
     m_pUi->listServer->setModel(m_pServerModel);
     m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_Name, QHeaderView::Stretch);
     m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_ServerName, QHeaderView::Stretch);
-    m_pUi->listServer->hideColumn(Server::P_BotsCurrent);
-    m_pUi->listServer->hideColumn(Server::P_PlayerCurrent);
+    m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_GameMode, QHeaderView::Stretch);
     m_pUi->listServer->hideColumn(Server::P_Description);
     m_pUi->listServer->hideColumn(Server::P_Port);
     m_pUi->listServer->hideColumn(Server::P_Url);
@@ -49,6 +48,9 @@ MainWindow::MainWindow() :
         m_pServerModel->setData(m_pServerModel->index(row, Server::P_Port), s.value(serverName + "_port").toInt(), Qt::DisplayRole);
     }
     s.endGroup();
+    m_pServerModel->startUpdates();
+
+    connect(m_pUi->buttonUpdateServerList, &QPushButton::clicked, m_pServerModel, &ServerModel::updateRecords);
 
     connect(m_pUi->buttonRemoveServer, &QPushButton::clicked, [this]()
     {

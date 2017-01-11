@@ -80,6 +80,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QPushButton" name="buttonUpdateServerList">
+            <property name="text">
+             <string>Update serverlist</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
        </layout>

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <QAbstractTableModel>
+#include <QTimer>
+
+#include "gmpclient.h"
 
 class Server
 {
@@ -12,10 +15,10 @@ public:
         P_Port,
         P_ServerName,
         P_Description,
-        P_Player,
-        P_PlayerCurrent,
-        P_Bots,
-        P_BotsCurrent,
+        P_GameMode,
+        P_ServerVersion,
+        P_PlayerCount,
+        P_BotCount,
         P_Ping,
         P_Max
     };
@@ -25,10 +28,10 @@ public:
     inline void setPort(quint16 port) { m_Port = port; }
     inline void setServerName(const QString &name) { m_ServerName = name; }
     inline void setDescription(const QString &description) { m_Description = description; }
-    inline void setPlayerCount(quint64 playerCount) { m_Player = playerCount; }
-    inline void setPlayerCountCurrent(quint64 playerCountCurrent) { m_PlayerCurrent = playerCountCurrent; }
-    inline void setBotCount(quint64 botCount) { m_Bots = botCount; }
-    inline void setBotCountCurrent(quint64 botCountCurrent) { m_BotsCurrent = botCountCurrent; }
+    inline void setGameMode(const QString &gamemode) { m_GameMode = gamemode; }
+    inline void setServerVersion(const QString &serverVersion) { m_ServerVersion = serverVersion; }
+    inline void setPlayerCount(const QString &playerCount) { m_PlayerCount = playerCount; }
+    inline void setBotCount(const QString &botCount) { m_BotCount = botCount; }
     inline void setPintCurrent(quint64 ping) { m_PingCurrent = ping; }
 
     inline const QString &name() const { return m_Name; }
@@ -36,8 +39,10 @@ public:
     inline quint16 port() const { return m_Port; }
     inline const QString &serverName() const { return m_ServerName; }
     inline const QString &description() const { return m_Description; }
-    inline QString playerCount() const { return QString::number(m_PlayerCurrent) + "/" + QString::number(m_Player); }
-    inline QString botCount() const { return QString::number(m_BotsCurrent) + "/" + QString::number(m_Bots); }
+    inline const QString &gameMode() const { return m_GameMode; }
+    inline const QString &serverVersion() const { return m_ServerVersion; }
+    inline const QString &playerCount() const { return m_PlayerCount; }
+    inline const QString &botCount() const { return m_BotCount; }
     inline QString ping() const { return QString::number(m_PingCurrent); }
 
 private:
@@ -46,25 +51,35 @@ private:
     quint16 m_Port;
     QString m_ServerName;
     QString m_Description;
-    quint64 m_Player;
-    quint64 m_PlayerCurrent;
-    quint64 m_Bots;
-    quint64 m_BotsCurrent;
+    QString m_GameMode;
+    QString m_ServerVersion;
+    QString m_PlayerCount;
+    QString m_BotCount;
     quint64 m_PingCurrent;
 };
 
 class ServerModel : public QAbstractTableModel
 {
 public:
+    ServerModel(QObject *pParent = nullptr);
+
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role) const override;
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
-    virtual bool removeRows(int row, int count, const QModelIndex &parent) override;
+    virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+    void startUpdates();
+
+public slots:
+    void updateRecords();
+
+private slots:
+    void updateServerRecord(int row, const QString &serverName, const QString &gamemode, const QString &version, const QString &playerCount, const QString &botCount, const QString &description);
+
 private:
-    QVector<Server> m_Server;
-public:
+    QTimer m_Timer;
+    QVector<QPair<Server, GMPClient *>> m_Server;
 };

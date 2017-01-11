@@ -4,6 +4,8 @@
 
 // INTERNAL INCLUDES
 #include "mainwindow.h"
+#include "gmpclient.h"
+#include <QDebug>
 
 int main(int argc, char *argv[])
 {
