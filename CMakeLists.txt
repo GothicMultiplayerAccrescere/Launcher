@@ -31,66 +31,65 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 # extend this for more build systems later on
 if (MSVC)
 
-	# VISUAL STUDIO
-	# fill the build definitions for the MSVC build subsystem in here
-	set_property (GLOBAL PROPERTY USE_FOLDERS ON)
-	SET(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
-	SET(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MT /GS- /GR- /utf-8")
-	SET(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
-	ADD_DEFINITIONS(-DUNICODE)
-	ADD_DEFINITIONS(-D_UNICODE)
+    # VISUAL STUDIO
+    # fill the build definitions for the MSVC build subsystem in here
+    set_property (GLOBAL PROPERTY USE_FOLDERS ON)
+    SET(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
+    SET(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MT /GS- /GR- /utf-8")
+    SET(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
+    ADD_DEFINITIONS(-DUNICODE)
+    ADD_DEFINITIONS(-D_UNICODE)
 
 else()
 
-	# MINGW
-	# fill the build definitions for the MinGW build subsystem in here
-        SET(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
-	SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -Os -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
-		-Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables	\
-		-ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections, -Wl,--strip-all")
-	SET(CMAKE_CXX_FLAGS_DEBUG " -Wold-style-cast -DCOMPILE_WITH_LOGS")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
-	ADD_DEFINITIONS(-DUNICODE)
-	ADD_DEFINITIONS(-D_UNICODE)
+    # MINGW
+    # fill the build definitions for the MinGW build subsystem in here
+    SET(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
+    SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
+        -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables	\
+        -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections, -Wl,--strip-all")
+    SET(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
+    ADD_DEFINITIONS(-DUNICODE)
+    ADD_DEFINITIONS(-D_UNICODE)
 
 endif()
 
 
 # define the include directories
 include_directories(
-		"${CMAKE_SOURCE_DIR}/include"
-)
+    "${CMAKE_SOURCE_DIR}/include"
+    )
 
 # list include files to variables
 file (GLOB_RECURSE INCLUDE_FILES
-		LIST_DIRECTORIES false
-		include/*.h
-)
+    LIST_DIRECTORIES false
+    include/*.h
+    )
 
 # list source files to variables
 file (GLOB_RECURSE SRC_FILES
-		src/*.cpp
-)
+    src/*.cpp
+    )
 
 # list ui files to variables
 file(GLOB_RECURSE UI_FILES
     src/*.ui
-)
+    )
 
 set(RC_FILE
     resource/resource.qrc
-)
+    )
 
 # set up filter groups for the file lists
 if (MSVC)
-	foreach(_source IN ITEMS ${INCLUDE_FILES})
-		get_filename_component(_source_path "${_source}" PATH)
-		file(RELATIVE_PATH _source_path_rel "${CMAKE_SOURCE_DIR}" "${_source_path}")
-		string(REPLACE "/" "\\" _group_path "${_source_path_rel}")
-		source_group("${_group_path}" FILES "${_source}")
-	endforeach()
+    foreach(_source IN ITEMS ${INCLUDE_FILES})
+        get_filename_component(_source_path "${_source}" PATH)
+        file(RELATIVE_PATH _source_path_rel "${CMAKE_SOURCE_DIR}" "${_source_path}")
+        string(REPLACE "/" "\\" _group_path "${_source_path_rel}")
+        source_group("${_group_path}" FILES "${_source}")
+    endforeach()
 else()
-source_group("includes" FILES ${INCLUDE_FILES})
+    source_group("includes" FILES ${INCLUDE_FILES})
 endif()
 
 source_group("source" FILES ${SRC_FILES})
@@ -100,43 +99,34 @@ set(RES_FILES "")
 # compile the resource file for windows
 # if this is the specified platform (by compiler)
 if (MSVC OR MINGW)
-	set(RES_FILES "resource/resource.rc")
-	set(CMAKE_RC_COMPILER_INIT windres)
-	ENABLE_LANGUAGE(RC)
-	SET(CMAKE_RC_COMPILE_OBJECT
-			"<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+    set(RES_FILES "resource/resource.rc")
+    set(CMAKE_RC_COMPILER_INIT windres)
+    ENABLE_LANGUAGE(RC)
+    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
 endif()
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
-elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    add_executable(${TARGET_NAME} WIN32 ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
-else ()
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-        add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
-endif()
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network)
 
 # FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
 if (WIN32)
-	if (MSVC)
-		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-		set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-	elseif(MINGW)
-	endif()
+    if (MSVC)
+        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
+        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+    elseif(MINGW)
+    endif()
 endif()
 
 # link additional libraries to the target
 if (MINGW)
-	# FIXME: merge this with MSVC linking if available in the future
-	#target_link_libraries(${TARGET_NAME} ${QT})
+    # FIXME: merge this with MSVC linking if available in the future
+    #target_link_libraries(${TARGET_NAME} ${QT})
 elseif()
-	# FIXME: use proper library check if available later on (currently crashing MSVC)
-	#target_link_libraries(${TARGET_NAME} QT)
+    # FIXME: use proper library check if available later on (currently crashing MSVC)
+    #target_link_libraries(${TARGET_NAME} QT)
 endif()
