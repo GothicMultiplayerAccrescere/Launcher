@@ -14,6 +14,7 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "servermodel.h"
+#include "server.h"
 
 MainWindow::MainWindow() :
     QMainWindow(nullptr),
@@ -38,14 +39,13 @@ MainWindow::MainWindow() :
     QStringList serverList = s.value("server_list").toStringList();
 
     int row = 0;
-    for(const QVariant &server : serverList)
+    for(const QString &server : serverList)
     {
-        QString serverName = server.toString();
-        m_ServerNames.insert(serverName);
+        m_ServerNames.insert(server);
         m_pServerModel->insertRow(row);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Name), serverName, Qt::DisplayRole);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Url), s.value(serverName + "_url").toString(), Qt::DisplayRole);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Port), s.value(serverName + "_port").toInt(), Qt::DisplayRole);
+        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Name), server, Qt::DisplayRole);
+        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Url), s.value(server + "_url").toString(), Qt::DisplayRole);
+        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Port), s.value(server + "_port").toInt(), Qt::DisplayRole);
     }
     s.endGroup();
     m_pServerModel->startUpdates();
@@ -107,9 +107,6 @@ MainWindow::MainWindow() :
         });
         pDialog->setModal(true);
         pDialog->show();
-//        m_pUi->listServer->addItem(m_pUi->editAddServer->text());
-//        m_pUi->editAddServer->clear();
-//        m_pUi->buttonAddServer->setEnabled(false);
     });
 }
 

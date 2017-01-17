@@ -1,24 +1,28 @@
 // EXTERNAL INCLUDES
 #include <QApplication>
 #include <QStyleFactory>
+#include <QMessageBox>
 
 // INTERNAL INCLUDES
 #include "mainwindow.h"
-#include "gmpclient.h"
-#include <QDebug>
 
 int main(int argc, char *argv[])
 {
     QApplication::setApplicationDisplayName("Gothic Launcher");
     QApplication::setApplicationName("GMP Launcher");
     QApplication::setApplicationVersion("v0.0.1");
-    QApplication::setOrganizationDomain("");
-    QApplication::setOrganizationName("Arcanum Softworks");
+    QApplication::setOrganizationName("Public domain");
 
     QApplication app(argc, argv);
 
+    //TODO: some windows user needs to put in a fitting style please.
     if(QStyleFactory::keys().contains("Oxygen"))
         QApplication::setStyle(QStyleFactory::create("Oxygen"));
+    else
+    {
+        QMessageBox::critical(nullptr, "Style not found", "Your platform does not provide an accepted style.");
+        qFatal("Style not found");
+    }
 
     QPalette pal(Qt::black);
     pal.setBrush(QPalette::Window, QColor(0x25, 0x24, 0x33));

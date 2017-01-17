@@ -1,10 +1,10 @@
 #include "servermodel.h"
+#include "server.h"
 
 ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
 {
-    m_Timer.setInterval(10000);
-    connect(&m_Timer, &QTimer::timeout, this, &ServerModel::updateRecords);
+    m_Timer.setInterval(1000);
 }
 
 int ServerModel::rowCount(const QModelIndex &parent) const
@@ -31,29 +31,29 @@ QVariant ServerModel::data(const QModelIndex &index, int role) const
     if(m_Server.size() <= index.row())
         return QVariant();
 
-    const Server &server = m_Server[index.row()].first;
+    const Server *server = m_Server[index.row()];
     switch(index.column())
     {
     case Server::P_Name:
-        return server.name();
+        return server->name();
     case Server::P_Url:
-        return server.url();
+        return server->url();
     case Server::P_Port:
-        return server.port();
+        return server->port();
     case Server::P_ServerName:
-        return server.serverName();
+        return server->serverName();
     case Server::P_Description:
-        return server.description();
+        return server->description();
     case Server::P_GameMode:
-        return server.gameMode();
+        return server->gameMode();
     case Server::P_ServerVersion:
-        return server.serverVersion();
+        return server->serverVersion();
     case Server::P_PlayerCount:
-        return server.playerCount();
+        return server->playerCount();
     case Server::P_BotCount:
-        return server.botCount();
+        return server->botCount();
     case Server::P_Ping:
-        return server.ping();
+        return server->ping();
     }
 
     return QVariant();
@@ -64,38 +64,38 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
     if(!index.isValid() || index.parent().isValid() || index.row() >= m_Server.size() || index.column() >= Server::P_Max || role != Qt::DisplayRole)
         return false;
 
-    Server &server = m_Server[index.row()].first;
+    Server *server = m_Server[index.row()];
     switch(index.column())
     {
     case Server::P_Name:
-        server.setName(value.toString());
+        server->setName(value.toString());
         return true;
     case Server::P_Url:
-        server.setUrl(value.toString());
+        server->setUrl(value.toString());
         return true;
     case Server::P_Port:
-        server.setPort(value.toInt());
+        server->setPort(value.toInt());
         return true;
     case Server::P_ServerName:
-        server.setServerName(value.toString());
+        server->setServerName(value.toString());
         return true;
     case Server::P_Description:
-        server.setDescription(value.toString());
+        server->setDescription(value.toString());
         return true;
     case Server::P_GameMode:
-        server.setGameMode(value.toString());
+        server->setGameMode(value.toString());
         return true;
     case Server::P_ServerVersion:
-        server.setServerVersion(value.toString());
+        server->setServerVersion(value.toString());
         return true;
     case Server::P_PlayerCount:
-        server.setPlayerCount(value.toString());
+        server->setPlayerCount(value.toString());
         return true;
     case Server::P_BotCount:
-        server.setBotCount(value.toString());
+        server->setBotCount(value.toString());
         return true;
     case Server::P_Ping:
-        server.setPintCurrent(value.toLongLong());
+        server->setPintCurrent(value.toLongLong());
         return true;
     }
 
@@ -108,7 +108,9 @@ bool ServerModel::insertRows(int row, int count, const QModelIndex &parent)
         return false;
 
     beginInsertRows(parent, row, row + count - 1);
-    m_Server.insert(row, count, {{}, nullptr});
+    Server *pServer = new Server;
+    m_Server.insert(row, count, pServer);
+    connect(&m_Timer, &QTimer::timeout, pServer, &Server::update);
     endInsertRows();
 
     return true;
@@ -121,11 +123,8 @@ bool ServerModel::removeRows(int row, int count, const QModelIndex &parent)
 
     beginRemoveRows(parent, row, row + count - 1);
     for(int i = row, end = row + count; i < end; ++i)
-    {
-        GMPClient *pClient = m_Server[i].second;
-        m_Server[i].second = nullptr;
-        delete pClient;
-    }
+        delete m_Server[i];
+
     m_Server.remove(row, count);
     endRemoveRows();
     return true;
@@ -163,37 +162,10 @@ QVariant ServerModel::headerData(int section, Qt::Orientation orientation, int r
 void ServerModel::startUpdates()
 {
     m_Timer.start();
-    updateRecords();
 }
 
 void ServerModel::updateRecords()
 {
-    int row = 0;
-    for(QPair<Server, GMPClient *> &server : m_Server)
-    {
-        if(server.second)
-            server.second->deleteLater();
-
-        server.second = new GMPClient(row++, this);
-
-        connect(server.second, &GMPClient::serverChecked, this, &ServerModel::updateServerRecord);
-
-        server.second->start(server.first.url(), server.first.port());
-    }
-}
-
-void ServerModel::updateServerRecord(int row, const QString &serverName, const QString &gamemode, const QString &version, const QString &playerCount, const QString &botCount, const QString &description)
-{
-    if(row >= m_Server.size())
-        return;
-
-    setData(index(row, Server::P_ServerName), serverName, Qt::DisplayRole);
-    setData(index(row, Server::P_GameMode), gamemode, Qt::DisplayRole);
-    setData(index(row, Server::P_ServerVersion), version, Qt::DisplayRole);
-    setData(index(row, Server::P_PlayerCount), playerCount, Qt::DisplayRole);
-    setData(index(row, Server::P_BotCount), botCount, Qt::DisplayRole);
-    setData(index(row, Server::P_Description), description, Qt::DisplayRole);
-
-    delete m_Server[row].second;
-    m_Server[row].second = nullptr;
+    for(Server *pServer : m_Server)
+        pServer->update();
 }
