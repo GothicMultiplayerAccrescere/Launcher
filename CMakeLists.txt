@@ -80,6 +80,10 @@ set(RC_FILE
     resource/resource.qrc
     )
 
+set(MISC
+    README.md
+    )
+
 # set up filter groups for the file lists
 if (MSVC)
     foreach(_source IN ITEMS ${INCLUDE_FILES})
@@ -108,7 +112,7 @@ endif()
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
-add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES})
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES} ${MISC})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network)
