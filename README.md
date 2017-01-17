@@ -19,4 +19,4 @@ This launcher is a nice alternative to the original launcher. It's written on Li
 
 
 ## License
-[WTFPL](https://raw.githubusercontent.com/TRUEPADDii/GothicMultiplayerLauncher/master/LICENSE)
+[WTFPL](https://github.com/TRUEPADDii/GothicMultiplayerLauncher/blob/master/LICENSE)
