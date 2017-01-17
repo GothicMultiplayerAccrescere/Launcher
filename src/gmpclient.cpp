@@ -3,6 +3,8 @@
 
 #include "gmpclient.h"
 
+// BUG: the protocol needs to be properly reversed, this hacky approach doesn't reliably work.
+
 GMPClient::GMPClient(QObject *pParent) :
     QObject(pParent),
     m_pSocket(new QUdpSocket(this))

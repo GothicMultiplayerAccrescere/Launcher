@@ -1,8 +1,8 @@
 #pragma once
 
 #include <QMainWindow>
-#include <QSet>
 #include <QString>
+#include <QDataWidgetMapper>
 
 class ServerModel;
 
@@ -20,5 +20,5 @@ public:
 private:
     Ui::MainWindow *m_pUi;
     ServerModel *m_pServerModel;
-    QSet<QString> m_ServerNames;
+    QDataWidgetMapper *m_pMapper;
 };

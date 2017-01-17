@@ -18,5 +18,5 @@ private:
     Ui::DialogAddServer *m_pUi;
 
 signals:
-    void selected(const QString &url, const QString &name, quint16 port);
+    void selected(const QString &name, const QString &url, quint16 port);
 };

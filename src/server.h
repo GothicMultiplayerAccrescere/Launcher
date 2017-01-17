@@ -11,6 +11,7 @@ public:
         P_Name,
         P_Url,
         P_Port,
+        P_Nick,
         P_ServerName,
         P_Description,
         P_GameMode,
@@ -28,6 +29,7 @@ public:
     inline void setName(const QString &name) { m_Name = name; }
     inline void setUrl(const QString &url) { m_Url = url; }
     inline void setPort(quint16 port) { m_Port = port; }
+    inline void setNickname(const QString &nickname) { m_Nickname = nickname; }
     inline void setServerName(const QString &name) { m_ServerName = name; }
     inline void setDescription(const QString &description) { m_Description = description; }
     inline void setGameMode(const QString &gamemode) { m_GameMode = gamemode; }
@@ -39,6 +41,7 @@ public:
     inline const QString &name() const { return m_Name; }
     inline const QString &url() const { return m_Url; }
     inline quint16 port() const { return m_Port; }
+    inline const QString &nickname() const { return m_Nickname; }
     inline const QString &serverName() const { return m_ServerName; }
     inline const QString &description() const { return m_Description; }
     inline const QString &gameMode() const { return m_GameMode; }
@@ -60,6 +63,7 @@ private:
     QString m_Name;
     QString m_Url;
     quint16 m_Port;
+    QString m_Nickname;
     QString m_ServerName;
     QString m_Description;
     QString m_GameMode;

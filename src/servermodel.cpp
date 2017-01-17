@@ -1,10 +1,31 @@
+#include <QSettings>
+#include <functional>
+
 #include "servermodel.h"
 #include "server.h"
 
 ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
 {
-    m_Timer.setInterval(1000);
+    QSettings s;
+
+    m_Timer.setInterval(s.value("Misc/RefreshRate", 10000).toInt());
+
+    int rows = s.beginReadArray("Server");
+    for(int i = 0; i < rows; ++i)
+    {
+        s.setArrayIndex(i);
+        Server *pServer = addServer(i);
+        pServer->setName(s.value("server_name").toString());
+        pServer->setUrl(s.value("server_url").toString());
+        pServer->setNickname(s.value("server_nick").toString());
+        pServer->setPort(s.value("server_port").toInt());
+    }
+    s.endArray();
+    emit dataChanged(index(0, 0), index(rowCount() - 1, Server::P_Max - 1));
+
+    m_Timer.start();
+    updateRecords();
 }
 
 int ServerModel::rowCount(const QModelIndex &parent) const
@@ -25,7 +46,7 @@ int ServerModel::columnCount(const QModelIndex &parent) const
 
 QVariant ServerModel::data(const QModelIndex &index, int role) const
 {
-    if(role != Qt::DisplayRole)
+    if(role != Qt::DisplayRole && role != Qt::EditRole)
         return QVariant();
 
     if(m_Server.size() <= index.row())
@@ -40,6 +61,8 @@ QVariant ServerModel::data(const QModelIndex &index, int role) const
         return server->url();
     case Server::P_Port:
         return server->port();
+    case Server::P_Nick:
+        return server->nickname();
     case Server::P_ServerName:
         return server->serverName();
     case Server::P_Description:
@@ -61,7 +84,7 @@ QVariant ServerModel::data(const QModelIndex &index, int role) const
 
 bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
-    if(!index.isValid() || index.parent().isValid() || index.row() >= m_Server.size() || index.column() >= Server::P_Max || role != Qt::DisplayRole)
+    if(!index.isValid() || index.parent().isValid() || index.row() >= m_Server.size() || index.column() >= Server::P_Max || (role != Qt::DisplayRole && role != Qt::EditRole))
         return false;
 
     Server *server = m_Server[index.row()];
@@ -75,6 +98,9 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
         return true;
     case Server::P_Port:
         server->setPort(value.toInt());
+        return true;
+    case Server::P_Nick:
+        server->setNickname(value.toString());
         return true;
     case Server::P_ServerName:
         server->setServerName(value.toString());
@@ -102,30 +128,30 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
     return false;
 }
 
-bool ServerModel::insertRows(int row, int count, const QModelIndex &parent)
-{
-    if(parent.isValid() || row > m_Server.size())
-        return false;
-
-    beginInsertRows(parent, row, row + count - 1);
-    Server *pServer = new Server;
-    m_Server.insert(row, count, pServer);
-    connect(&m_Timer, &QTimer::timeout, pServer, &Server::update);
-    endInsertRows();
-
-    return true;
-}
-
 bool ServerModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if(parent.isValid() || row + count > m_Server.size())
         return false;
 
+    QSettings s;
+    s.beginWriteArray("Server");
     beginRemoveRows(parent, row, row + count - 1);
     for(int i = row, end = row + count; i < end; ++i)
         delete m_Server[i];
 
+    s.remove("");
     m_Server.remove(row, count);
+
+    for(int i = 0, end = m_Server.size(); i < end; ++i)
+    {
+        s.setArrayIndex(i);
+        s.setValue("server_name", m_Server[i]->name());
+        s.setValue("server_url", m_Server[i]->url());
+        s.setValue("server_port", m_Server[i]->port());
+        s.setValue("server_nick", m_Server[i]->nickname());
+    }
+
+    s.endArray();
     endRemoveRows();
     return true;
 }
@@ -159,13 +185,42 @@ QVariant ServerModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
-void ServerModel::startUpdates()
-{
-    m_Timer.start();
-}
-
 void ServerModel::updateRecords()
 {
     for(Server *pServer : m_Server)
         pServer->update();
+}
+
+void ServerModel::appendRecord(const QString &name, const QString &url, quint16 port)
+{
+    int index = rowCount();
+
+    QSettings s;
+    s.beginGroup("Misc");
+    QString defaultNick = s.value("default_nick", "Nickname").toString();
+    s.endGroup();
+    s.beginWriteArray("Server");
+    s.setArrayIndex(index);
+    s.setValue("server_name", name);
+    s.setValue("server_url", url);
+    s.setValue("server_port", port);
+    s.setValue("server_nick", defaultNick);
+    s.endArray();
+
+    beginInsertRows(QModelIndex(), index, index);
+    Server *pServer = addServer(index);
+    pServer->setName(name);
+    pServer->setUrl(url);
+    pServer->setPort(port);
+    pServer->setNickname(defaultNick);
+    endInsertRows();
+}
+
+Server *ServerModel::addServer(int row)
+{
+    Server *pServer = new Server;
+    m_Server.insert(row, pServer);
+    connect(&m_Timer, &QTimer::timeout, pServer, &Server::update);
+    connect(pServer, &Server::updated, std::bind(&ServerModel::dataChanged, this, index(0, 0), index(rowCount(), Server::P_Max - 1), QVector<int>()));
+    return pServer;
 }

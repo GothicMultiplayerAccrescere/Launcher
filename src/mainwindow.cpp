@@ -19,92 +19,62 @@
 MainWindow::MainWindow() :
     QMainWindow(nullptr),
     m_pUi(new Ui::MainWindow),
-    m_pServerModel(new ServerModel)
+    m_pServerModel(new ServerModel),
+    m_pMapper(new QDataWidgetMapper(this))
 {
     m_pUi->setupUi(this);
 
-    m_pUi->listServer->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_pMapper->setModel(m_pServerModel);
+    m_pMapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
+    m_pMapper->addMapping(m_pUi->labelPort, Server::P_Port);
+    m_pMapper->addMapping(m_pUi->labelUrl, Server::P_Url);
+    m_pMapper->addMapping(m_pUi->serverDescription, Server::P_Description);
+    m_pMapper->addMapping(m_pUi->nickname, Server::P_Nick);
+    m_pMapper->addMapping(m_pUi->editAlias, Server::P_Name);
 
+    m_pUi->listServer->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_pUi->listServer->setModel(m_pServerModel);
-    m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_Name, QHeaderView::Stretch);
-    m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_ServerName, QHeaderView::Stretch);
-    m_pUi->listServer->horizontalHeader()->setSectionResizeMode(Server::P_GameMode, QHeaderView::Stretch);
+    m_pUi->listServer->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_pUi->listServer->hideColumn(Server::P_Description);
     m_pUi->listServer->hideColumn(Server::P_Port);
     m_pUi->listServer->hideColumn(Server::P_Url);
+    m_pUi->listServer->hideColumn(Server::P_Nick);
     m_pUi->listServer->horizontalHeader()->setVisible(true);
-
-    QSettings s;
-    s.beginGroup("Server");
-    QStringList serverList = s.value("server_list").toStringList();
-
-    int row = 0;
-    for(const QString &server : serverList)
-    {
-        m_ServerNames.insert(server);
-        m_pServerModel->insertRow(row);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Name), server, Qt::DisplayRole);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Url), s.value(server + "_url").toString(), Qt::DisplayRole);
-        m_pServerModel->setData(m_pServerModel->index(row, Server::P_Port), s.value(server + "_port").toInt(), Qt::DisplayRole);
-    }
-    s.endGroup();
-    m_pServerModel->startUpdates();
 
     connect(m_pUi->buttonUpdateServerList, &QPushButton::clicked, m_pServerModel, &ServerModel::updateRecords);
 
     connect(m_pUi->buttonRemoveServer, &QPushButton::clicked, [this]()
     {
         QModelIndex index = m_pUi->listServer->selectionModel()->currentIndex();
-        QString name = m_pServerModel->data(index, Qt::DisplayRole).toString();
         m_pServerModel->removeRow(index.row());
-        m_ServerNames.remove(name);
-        QSettings s;
-        s.beginGroup("Server");
-        s.setValue("server_list", QVariant(QStringList(m_ServerNames.toList())));
-        s.remove(name + "_url");
-        s.remove(name + "_port");
-        s.endGroup();
-
-        if(m_pUi->listServer->selectionModel()->selectedRows().empty())
-            m_pUi->buttonRemoveServer->setEnabled(false);
     });
 
-    connect(m_pUi->listServer, &QListWidget::clicked, [this]()
+    connect(m_pUi->listServer->selectionModel(), &QItemSelectionModel::selectionChanged, [this]()
     {
+        m_pMapper->submit();
         if(m_pUi->listServer->selectionModel()->selectedRows().empty())
+        {
+            m_pUi->buttonJoin->setEnabled(false);
             m_pUi->buttonRemoveServer->setEnabled(false);
+            m_pMapper->setCurrentModelIndex(QModelIndex());
+            m_pUi->labelPort->clear();
+            m_pUi->labelUrl->clear();
+            m_pUi->serverDescription->clear();
+            m_pUi->nickname->clear();
+            m_pUi->editAlias->clear();
+        }
         else
+        {
+            m_pUi->buttonJoin->setEnabled(true);
             m_pUi->buttonRemoveServer->setEnabled(true);
+            m_pMapper->setCurrentIndex(m_pUi->listServer->selectionModel()->selectedRows().at(0).row());
+        }
     });
 
     connect(m_pUi->buttonAddServer, &QPushButton::clicked, [this]()
     {
         DialogAddServer *pDialog = new DialogAddServer(this);
-        connect(pDialog, &DialogAddServer::selected, [this](const QString &url, const QString &name, quint16 port)
-        {
-            if(m_ServerNames.contains(name))
-            {
-                QMessageBox::warning(this, tr("Error"), tr("Servername already in use"));
-                return;
-            }
-            int row = m_pServerModel->rowCount();
-            if(!m_pServerModel->insertRow(row))
-                throw std::runtime_error("error");
-
-            QSettings s;
-            s.beginGroup("Server");
-            QStringList  list(m_ServerNames.toList());
-            list << name;
-            s.setValue("server_list", list);
-            s.setValue(name + "_url", url);
-            s.setValue(name + "_port", port);
-            s.endGroup();
-
-            m_ServerNames.insert(name);
-            m_pServerModel->setData(m_pServerModel->index(row, Server::P_Url), url, Qt::DisplayRole);
-            m_pServerModel->setData(m_pServerModel->index(row, Server::P_Name), name, Qt::DisplayRole);
-            m_pServerModel->setData(m_pServerModel->index(row, Server::P_Port), port, Qt::DisplayRole);
-        });
+        connect(pDialog, &DialogAddServer::selected, m_pServerModel, &ServerModel::appendRecord);
         pDialog->setModal(true);
         pDialog->show();
     });
