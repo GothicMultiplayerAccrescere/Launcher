@@ -34,24 +34,21 @@ if (MSVC)
     # VISUAL STUDIO
     # fill the build definitions for the MSVC build subsystem in here
     set_property (GLOBAL PROPERTY USE_FOLDERS ON)
-    SET(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
-    SET(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MT /GS- /GR- /utf-8")
-    SET(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
-    ADD_DEFINITIONS(-DUNICODE)
-    ADD_DEFINITIONS(-D_UNICODE)
-
+    set(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
+    set(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MT /GS- /GR- /utf-8")
+    set(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
+    add_definitions(-DUNICODE)
+    add_definitions(-D_UNICODE)
 else()
-
     # MINGW
     # fill the build definitions for the MinGW build subsystem in here
-    SET(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
-    SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
+    set(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
+    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
         -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables	\
         -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections, -Wl,--strip-all")
-    SET(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
-    ADD_DEFINITIONS(-DUNICODE)
-    ADD_DEFINITIONS(-D_UNICODE)
-
+    set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
+    add_definitions(-DUNICODE)
+    add_definitions(-D_UNICODE)
 endif()
 
 
@@ -112,8 +109,8 @@ endif()
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
-add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES} ${MISC})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES} ${MISC})
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network)
 

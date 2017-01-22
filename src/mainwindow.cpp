@@ -8,6 +8,8 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QDataWidgetMapper>
+#include <QProcess>
 #include <QDebug>
 
 #include "dialogaddserver.h"
@@ -20,7 +22,8 @@ MainWindow::MainWindow() :
     QMainWindow(nullptr),
     m_pUi(new Ui::MainWindow),
     m_pServerModel(new ServerModel),
-    m_pMapper(new QDataWidgetMapper(this))
+    m_pMapper(new QDataWidgetMapper(this)),
+    m_pGameProcess(nullptr)
 {
     m_pUi->setupUi(this);
 
@@ -40,6 +43,8 @@ MainWindow::MainWindow() :
     m_pUi->listServer->hideColumn(Server::P_Url);
     m_pUi->listServer->hideColumn(Server::P_Nick);
     m_pUi->listServer->horizontalHeader()->setVisible(true);
+
+    connect(m_pUi->buttonJoin, &QPushButton::clicked, this, &MainWindow::startProcess);
 
     connect(m_pUi->buttonUpdateServerList, &QPushButton::clicked, m_pServerModel, &ServerModel::updateRecords);
 
@@ -83,4 +88,65 @@ MainWindow::MainWindow() :
 MainWindow::~MainWindow()
 {
     delete m_pUi;
+    delete m_pGameProcess;
+}
+
+void MainWindow::startProcess()
+{
+    QSettings s;
+    s.beginGroup("Gothic");
+    QString workingDir = s.value("working_directory").toString();
+    s.endGroup();
+
+    int row = m_pUi->listServer->selectionModel()->selectedRows().at(0).row();
+    QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
+    quint16 port = m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt();
+    QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
+
+    // format of gmp_connect.cfg
+    // nickname=Nickname
+    // ip=127.0.0.1
+    // port=28960
+
+    QString filename;
+    if(!workingDir.isEmpty())
+        filename = workingDir + "/gmp_connect.cfg";
+    else
+        filename = "gmp_connect.cfg";
+
+    QFile connectConf(filename);
+    if(!connectConf.open(QFile::WriteOnly))
+    {
+        QMessageBox::critical(this, "Error", "Could not open gmp_connect.cfg");
+        return;
+    }
+
+    connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
+
+    connectConf.close();
+
+#ifdef __unix__
+    s.beginGroup("Linux");
+    if(m_pGameProcess)
+    {
+        QMessageBox::warning(this, "Already running", "The game is already running");
+        return;
+    }
+    m_pGameProcess = new QProcess(this);
+    connect(m_pGameProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), [this](int exitCode)
+    {
+        if(exitCode)
+            QMessageBox::critical(this, "Error", "Gothic exited with error code");
+        m_pGameProcess->deleteLater();
+        m_pGameProcess = nullptr;
+    });
+    m_pGameProcess->setEnvironment(QStringList() << "TARGET_DLL=gmp.dll" << "JUMP_DLL=loader.dll");
+    m_pGameProcess->setArguments(QStringList() << "gothic.exe");
+    m_pGameProcess->setProgram(s.value("wine_binary", "wine").toString());
+    m_pGameProcess->setWorkingDirectory(workingDir);
+    m_pGameProcess->start();
+    s.endGroup();
+#else
+    static_assert(0, "Not implemented");
+#endif
 }

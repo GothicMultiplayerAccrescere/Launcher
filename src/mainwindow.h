@@ -2,8 +2,9 @@
 
 #include <QMainWindow>
 #include <QString>
-#include <QDataWidgetMapper>
 
+class QDataWidgetMapper;
+class QProcess;
 class ServerModel;
 
 namespace Ui
@@ -17,8 +18,12 @@ public:
     MainWindow();
     virtual ~MainWindow() override;
 
+public slots:
+    void startProcess();
+
 private:
     Ui::MainWindow *m_pUi;
     ServerModel *m_pServerModel;
     QDataWidgetMapper *m_pMapper;
+    QProcess *m_pGameProcess;
 };

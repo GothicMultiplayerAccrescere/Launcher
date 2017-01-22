@@ -1,4 +1,4 @@
-# GothicMultiplayerLauncher
+# GothicMultiplayerLauncher [![Build Status](https://travis-ci.org/TRUEPADDii/GothicMultiplayerLauncher.svg?branch=master)](https://travis-ci.org/TRUEPADDii/GothicMultiplayerLauncher)
 
 ```
 Note:
@@ -13,9 +13,11 @@ This launcher is a nice alternative to the original launcher. It's written on Li
 
 ## TODO
 - [ ] Fix UDP stuff
+- [ ] add linux injector
+- [+] write start parameter to file
 - [ ] test on windows
-- [ ] add injector
-- [ ] write start parameter to file
+- [ ] windows style
+- [ ] add windows injector
 
 
 ## License
