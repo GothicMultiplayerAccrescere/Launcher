@@ -42,10 +42,8 @@ if (MSVC)
 else()
     # MINGW
     # fill the build definitions for the MinGW build subsystem in here
-    set(CMAKE_CXX_FLAGS " -std=c++17 -fpermissive -static-libstdc++ -static-libgcc -Wall")
-    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast	\
-        -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables	\
-        -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections, -Wl,--strip-all")
+    set(CMAKE_CXX_FLAGS " -std=c++14 -fpermissive -static-libstdc++ -static-libgcc -Wall")
+    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all")
     set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
     add_definitions(-D_UNICODE)
