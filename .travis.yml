@@ -1,0 +1,9 @@
+install:
+    - mkdir build
+    - pushd build; cmake ..; make; popd
+language: cpp
+compiler: gcc
+before_install:
+    - sudo apt-get -qq update
+    - sudo apt-get install -y qt5 cmake gcc
+
