@@ -5,5 +5,5 @@ language: cpp
 compiler: gcc
 before_install:
     - sudo apt-get -qq update
-    - sudo apt-get install -y qt5 cmake gcc
+    - sudo apt-get install -y qt5-default cmake gcc
 
