@@ -100,7 +100,7 @@ void MainWindow::startProcess()
 
     int row = m_pUi->listServer->selectionModel()->selectedRows().at(0).row();
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
-    quint16 port = m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt();
+    quint16 port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
 
     // format of gmp_connect.cfg
@@ -147,6 +147,35 @@ void MainWindow::startProcess()
     m_pGameProcess->start();
     s.endGroup();
 #else
-    static_assert(0, "Not implemented");
+    s.begingGroup("Windows");
+    PROCESS_INFORMATION pi = { 0 };
+    STARTUPINFOA si = { 0 };
+    si.cb = sizeof(si);
+
+    //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
+    std::string name("Gothic2.exe");
+    std::string args(name);
+    for(int i = 1; i < argc; ++i)
+        args = args + " " + argv[i];
+
+    args = args + " -session " + "ZNOEXHND";
+
+    if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi))
+    {
+        printf("error creating process\n");
+        printf("arguments: %s\n", args.c_str());
+        return -1;
+    }
+
+    DWORD old;
+    const char *data = "hacker.dll";
+    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, PAGE_EXECUTE_READWRITE, &old);
+    WriteProcessMemory(pi.hProcess, (void*)0x0088B6FC, data, strlen(data) + 1, NULL);
+    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, old, &old);
+
+    ResumeThread(pi.hThread);
+    CloseHandle(pi.hThread);
+    CloseHandle(pi.hProcess);
+    s.endGroup();
 #endif
 }
