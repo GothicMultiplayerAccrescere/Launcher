@@ -44,6 +44,7 @@ MainWindow::MainWindow() :
     m_pUi->listServer->horizontalHeader()->setVisible(true);
 
     connect(m_pUi->buttonJoin, &QPushButton::clicked, this, &MainWindow::startProcess);
+    connect(m_pUi->listServer, &QTableView::doubleClicked, this, &MainWindow::startProcess);
 
     connect(m_pUi->buttonUpdateServerList, &QPushButton::clicked, m_pServerModel, &ServerModel::updateRecords);
 
