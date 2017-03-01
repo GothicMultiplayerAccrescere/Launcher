@@ -19,7 +19,7 @@ ServerModel::ServerModel(QObject *pParent) :
         pServer->setName(s.value("server_name").toString());
         pServer->setUrl(s.value("server_url").toString());
         pServer->setNickname(s.value("server_nick").toString());
-        pServer->setPort(s.value("server_port").toInt());
+        pServer->setPort(static_cast<uint16_t>(s.value("server_port").toInt()));
     }
     s.endArray();
     emit dataChanged(index(0, 0), index(rowCount() - 1, Server::P_Max - 1));
@@ -97,7 +97,7 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
         server->setUrl(value.toString());
         return true;
     case Server::P_Port:
-        server->setPort(value.toInt());
+        server->setPort(static_cast<quint16>(value.toInt()));
         return true;
     case Server::P_Nick:
         server->setNickname(value.toString());
@@ -121,7 +121,7 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
         server->setBotCount(value.toString());
         return true;
     case Server::P_Ping:
-        server->setPintCurrent(value.toLongLong());
+        server->setPintCurrent(static_cast<quint64>(value.toLongLong()));
         return true;
     }
 
