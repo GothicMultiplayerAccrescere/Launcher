@@ -22,5 +22,6 @@ signals:
     void serverChecked(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description);
 
 private:
+    uint64_t m_ClientUuid;
     QUdpSocket *m_pSocket;
 };

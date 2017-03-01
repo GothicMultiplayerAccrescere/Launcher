@@ -18,6 +18,8 @@ public:
     virtual bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex()) override;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 
+    void updateData();
+
 public slots:
     void updateRecords();
     void appendRecord(const QString &name, const QString &url, quint16 port);

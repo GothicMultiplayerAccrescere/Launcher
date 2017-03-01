@@ -82,6 +82,24 @@ QVariant ServerModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+void ServerModel::updateData()
+{
+    QSettings s;
+    s.beginWriteArray("Server");
+    s.remove("");
+
+    for(int i = 0, end = m_Server.size(); i < end; ++i)
+    {
+        s.setArrayIndex(i);
+        s.setValue("server_name", m_Server[i]->name());
+        s.setValue("server_url", m_Server[i]->url());
+        s.setValue("server_port", m_Server[i]->port());
+        s.setValue("server_nick", m_Server[i]->nickname());
+    }
+
+    s.endArray();
+}
+
 bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if(!index.isValid() || index.parent().isValid() || index.row() >= m_Server.size() || index.column() >= Server::P_Max || (role != Qt::DisplayRole && role != Qt::EditRole))
@@ -91,15 +109,19 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
     switch(index.column())
     {
     case Server::P_Name:
+        updateData();
         server->setName(value.toString());
         return true;
     case Server::P_Url:
+        updateData();
         server->setUrl(value.toString());
         return true;
     case Server::P_Port:
+        updateData();
         server->setPort(static_cast<quint16>(value.toInt()));
         return true;
     case Server::P_Nick:
+        updateData();
         server->setNickname(value.toString());
         return true;
     case Server::P_ServerName:
@@ -133,25 +155,13 @@ bool ServerModel::removeRows(int row, int count, const QModelIndex &parent)
     if(parent.isValid() || row + count > m_Server.size())
         return false;
 
-    QSettings s;
-    s.beginWriteArray("Server");
     beginRemoveRows(parent, row, row + count - 1);
     for(int i = row, end = row + count; i < end; ++i)
         delete m_Server[i];
 
-    s.remove("");
     m_Server.remove(row, count);
 
-    for(int i = 0, end = m_Server.size(); i < end; ++i)
-    {
-        s.setArrayIndex(i);
-        s.setValue("server_name", m_Server[i]->name());
-        s.setValue("server_url", m_Server[i]->url());
-        s.setValue("server_port", m_Server[i]->port());
-        s.setValue("server_nick", m_Server[i]->nickname());
-    }
-
-    s.endArray();
+    updateData();
     endRemoveRows();
     return true;
 }
