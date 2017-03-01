@@ -33,11 +33,6 @@ MainWindow::MainWindow() :
 
     m_pMapper->setModel(m_pServerModel);
     m_pMapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
-    m_pMapper->addMapping(m_pUi->labelPort, Server::P_Port);
-    m_pMapper->addMapping(m_pUi->labelUrl, Server::P_Url);
-    m_pMapper->addMapping(m_pUi->serverDescription, Server::P_Description);
-    m_pMapper->addMapping(m_pUi->nickname, Server::P_Nick);
-    m_pMapper->addMapping(m_pUi->editAlias, Server::P_Name);
 
     m_pUi->listServer->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_pUi->listServer->setModel(m_pServerModel);
@@ -63,6 +58,7 @@ MainWindow::MainWindow() :
         m_pMapper->submit();
         if(m_pUi->listServer->selectionModel()->selectedRows().empty())
         {
+            m_pMapper->clearMapping();
             m_pUi->buttonJoin->setEnabled(false);
             m_pUi->buttonRemoveServer->setEnabled(false);
             m_pMapper->setCurrentModelIndex(QModelIndex());
@@ -74,6 +70,11 @@ MainWindow::MainWindow() :
         }
         else
         {
+            m_pMapper->addMapping(m_pUi->labelPort, Server::P_Port);
+            m_pMapper->addMapping(m_pUi->labelUrl, Server::P_Url);
+            m_pMapper->addMapping(m_pUi->serverDescription, Server::P_Description);
+            m_pMapper->addMapping(m_pUi->nickname, Server::P_Nick);
+            m_pMapper->addMapping(m_pUi->editAlias, Server::P_Name);
             m_pUi->buttonJoin->setEnabled(true);
             m_pUi->buttonRemoveServer->setEnabled(true);
             m_pMapper->setCurrentIndex(m_pUi->listServer->selectionModel()->selectedRows().at(0).row());
