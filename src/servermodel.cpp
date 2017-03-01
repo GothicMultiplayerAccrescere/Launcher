@@ -109,20 +109,20 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
     switch(index.column())
     {
     case Server::P_Name:
-        updateData();
         server->setName(value.toString());
+        updateData();
         return true;
     case Server::P_Url:
-        updateData();
         server->setUrl(value.toString());
+        updateData();
         return true;
     case Server::P_Port:
-        updateData();
         server->setPort(static_cast<quint16>(value.toInt()));
+        updateData();
         return true;
     case Server::P_Nick:
-        updateData();
         server->setNickname(value.toString());
+        updateData();
         return true;
     case Server::P_ServerName:
         server->setServerName(value.toString());
