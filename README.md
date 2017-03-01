@@ -14,10 +14,10 @@ This launcher is a nice alternative to the original launcher. It's written on Li
 ## TODO
 - [ ] Fix UDP stuff
 - [ ] add linux injector
-- [*] write start parameter to file
-- [ ] test on windows
-- [ ] windows style
-- [ ] add windows injector
+- [x] write start parameter to file
+- [x] test on windows
+- [ ] fix windows style
+- [x] add windows injector
 
 
 ## License
