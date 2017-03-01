@@ -18,6 +18,10 @@
 #include "servermodel.h"
 #include "server.h"
 
+#ifndef __unix__
+#include <windows.h>
+#endif
+
 MainWindow::MainWindow() :
     QMainWindow(nullptr),
     m_pUi(new Ui::MainWindow),
@@ -147,7 +151,7 @@ void MainWindow::startProcess()
     m_pGameProcess->start();
     s.endGroup();
 #else
-    s.begingGroup("Windows");
+    s.beginGroup("Windows");
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOA si = { 0 };
     si.cb = sizeof(si);
@@ -155,8 +159,6 @@ void MainWindow::startProcess()
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
     std::string name("Gothic2.exe");
     std::string args(name);
-    for(int i = 1; i < argc; ++i)
-        args = args + " " + argv[i];
 
     args = args + " -session " + "ZNOEXHND";
 
@@ -164,7 +166,7 @@ void MainWindow::startProcess()
     {
         printf("error creating process\n");
         printf("arguments: %s\n", args.c_str());
-        return -1;
+        return;
     }
 
     DWORD old;
