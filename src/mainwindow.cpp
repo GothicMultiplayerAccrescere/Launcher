@@ -99,12 +99,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::startProcess()
 {
+    QModelIndexList index = m_pUi->listServer->selectionModel()->selectedRows();
+    if(index.size() != 1)
+        return;
+
     QSettings s;
     s.beginGroup("Gothic");
     QString workingDir = s.value("working_directory").toString();
     s.endGroup();
 
-    int row = m_pUi->listServer->selectionModel()->selectedRows().at(0).row();
+    int row = index.at(0).row();
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
     quint16 port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
@@ -159,12 +163,12 @@ void MainWindow::startProcess()
     si.cb = sizeof(si);
 
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
-    std::string name("Gothic2.exe");
+    std::string name = workingDir.toStdString() + "/" + s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
     std::string args(name);
 
-    args = args + " -session " + "ZNOEXHND";
+    args += " -session " + "ZNOEXHND";
 
-    if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, NULL, &si, &pi))
+    if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
     {
         printf("error creating process\n");
         printf("arguments: %s\n", args.c_str());
@@ -172,7 +176,7 @@ void MainWindow::startProcess()
     }
 
     DWORD old;
-    const char *data = "hacker.dll";
+    const char *data = "loader.dll";
     VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, PAGE_EXECUTE_READWRITE, &old);
     WriteProcessMemory(pi.hProcess, (void*)0x0088B6FC, data, strlen(data) + 1, NULL);
     VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, old, &old);
