@@ -73,6 +73,7 @@ file(GLOB_RECURSE UI_FILES
 
 set(RC_FILE
     resource/resource.qrc
+    resource/gml.exe.manifest
     )
 
 set(MISC
@@ -98,6 +99,7 @@ set(RES_FILES "")
 # compile the resource file for windows
 # if this is the specified platform (by compiler)
 if (MSVC OR MINGW)
+    set(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
     set(RES_FILES "resource/resource.rc")
     set(CMAKE_RC_COMPILER_INIT windres)
     ENABLE_LANGUAGE(RC)
@@ -114,6 +116,7 @@ target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network)
 
 # FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
 if (WIN32)
+    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/resource/gml.exe.manifest\" -outputresource:\"gml.exe\" COMMENT "Adding penis...")
     if (MSVC)
         set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
         set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
