@@ -113,9 +113,11 @@ void MainWindow::startProcess()
     if(index.size() != 1)
         return;
 
+    QString launcherDir = QCoreApplication::applicationDirPath();
+
     QSettings s;
     s.beginGroup("Gothic");
-    QString workingDir = s.value("working_directory").toString();
+    QString workingDir = s.value("working_directory").toString() + "/System";
     s.endGroup();
 
     int row = index.at(0).row();
@@ -174,14 +176,19 @@ void MainWindow::startProcess()
 
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
     std::string name = workingDir.toStdString() + "/" + s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
-    std::string args(name);
+    std::string args(name + " -session ZNOEXHND");
+    _putenv(("TARGET_DLL=" + launcherDir.toStdString() + "/gmp-r10/gmp.dll").c_str());
+    QString path = getenv("PATH");
+    path = "PATH=" + path + ";" + launcherDir + "/bin";
+    path.replace('/', '\\');
+    _putenv(path.toStdString().c_str());
 
-    args += " -session " + "ZNOEXHND";
+    qDebug() << getenv("PATH");
 
     if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
     {
-        printf("error creating process\n");
-        printf("arguments: %s\n", args.c_str());
+        qWarning() << "error creating process: " << GetLastError();
+        qWarning() << "arguments: " << args.c_str();
         return;
     }
 
