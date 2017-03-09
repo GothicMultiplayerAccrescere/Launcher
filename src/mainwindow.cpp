@@ -10,6 +10,7 @@
 #include <QMessageBox>
 #include <QDataWidgetMapper>
 #include <QProcess>
+#include <QAction>
 #include <QDebug>
 
 #include "dialogaddserver.h"
@@ -17,6 +18,7 @@
 #include "mainwindow.h"
 #include "servermodel.h"
 #include "server.h"
+#include "options.h"
 
 #ifndef __unix__
 #include <windows.h>
@@ -88,6 +90,14 @@ MainWindow::MainWindow() :
         connect(pDialog, &DialogAddServer::selected, m_pServerModel, &ServerModel::appendRecord);
         pDialog->setModal(true);
         pDialog->show();
+    });
+
+    connect(m_pUi->actionQuit, &QAction::triggered, [this]() { qApp->quit(); });
+    connect(m_pUi->actionOptions, &QAction::triggered, [this]()
+    {
+        Options *pOptions = new Options;
+        pOptions->setModal(true);
+        pOptions->show();
     });
 }
 
