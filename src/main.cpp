@@ -26,16 +26,16 @@ int main(int argc, char *argv[])
         qFatal("Style not found");
     }
 
-    QPalette pal(Qt::black);
-    pal.setBrush(QPalette::Window, QColor(0x25, 0x24, 0x33));
-    pal.setBrush(QPalette::WindowText, QColor(0xd5, 0xc7, 0xa9));
-    pal.setBrush(QPalette::Base, QColor(0x46, 0x47, 0x54));
-    pal.setBrush(QPalette::AlternateBase, QColor(0x55, 0x56, 0x66));
-    pal.setBrush(QPalette::ToolTipBase, Qt::black);
+    QPalette pal(QColor("#464754"));
+    pal.setBrush(QPalette::Window, QColor("#252433"));
+    pal.setBrush(QPalette::WindowText, QColor("#D5C7A9"));
+    pal.setBrush(QPalette::Base, QColor("#464754"));
+    pal.setBrush(QPalette::AlternateBase, QColor("#555666"));
+    pal.setBrush(QPalette::ToolTipBase, QColor("#000000"));
     pal.setBrush(QPalette::ToolTipText, Qt::white);
-    pal.setBrush(QPalette::Text, QColor(0xd5, 0xc7, 0xa9));
-    pal.setBrush(QPalette::Button, Qt::black);
-    pal.setBrush(QPalette::ButtonText, QColor(0xd5, 0xc7, 0xa9));
+    pal.setBrush(QPalette::Text, QColor("#D5C7A9"));
+    pal.setBrush(QPalette::Button, QColor("#252433"));
+    pal.setBrush(QPalette::ButtonText, QColor("#D5C7A9"));
     pal.setBrush(QPalette::BrightText, Qt::white);
     pal.setBrush(QPalette::Highlight, Qt::gray);
     pal.setBrush(QPalette::HighlightedText, Qt::yellow);
