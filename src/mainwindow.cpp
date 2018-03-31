@@ -116,8 +116,8 @@ void MainWindow::startProcess()
     QString launcherDir = QCoreApplication::applicationDirPath();
 
     QSettings s;
-    s.beginGroup("Gothic");
-    QString workingDir = s.value("working_directory").toString() + "/System";
+    s.beginGroup("gothic");
+    QString workingDir = s.value("working_directory").toString() + "/system";
     s.endGroup();
 
     int row = index.front().row();
