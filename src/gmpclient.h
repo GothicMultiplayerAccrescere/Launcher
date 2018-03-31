@@ -35,7 +35,7 @@ public slots:
     void update();
 
 signals:
-    void serverChecked(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description);
+    void serverChecked(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description, int averagePing);
 
 private:
     RakNet::RakPeerInterface *m_pClient;

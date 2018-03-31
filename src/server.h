@@ -54,7 +54,7 @@ public slots:
     void update();
 
 private slots:
-    void updateData(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description);
+    void updateData(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description, int averagePing);
 
 signals:
     void updated();
@@ -70,7 +70,7 @@ private:
     QString m_ServerVersion;
     QString m_PlayerCount;
     QString m_BotCount;
-    quint64 m_PingCurrent;
+    qint64 m_PingCurrent;
 
     GMPClient *m_pClient;
 };
