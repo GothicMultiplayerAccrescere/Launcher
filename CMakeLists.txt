@@ -97,7 +97,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
 
 add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
-
 add_dependencies(${TARGET_NAME} RakNet)
+
+if (MSVC)
+	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS "/level='requireAdministrator' /uiAccess='false'")
+endif()
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})
