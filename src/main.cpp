@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     QApplication::setApplicationDisplayName("Gothic Launcher");
     QApplication::setApplicationName("GMP Launcher");
-    QApplication::setApplicationVersion("v0.0.1");
+    QApplication::setApplicationVersion("v0.5.3");
     QApplication::setOrganizationName("Public domain");
 
     QApplication app(argc, argv);
@@ -37,6 +37,10 @@ int main(int argc, char *argv[])
 	pal.setBrush(QPalette::ToolTipBase, QColor("#252433"));
 	pal.setBrush(QPalette::ToolTipText, QColor("#D5C7A9"));
     app.setPalette(pal);
+
+#ifdef _WIN32
+	qApp->setStyle("fusion");
+#endif
 
     MainWindow w;
     w.show();
