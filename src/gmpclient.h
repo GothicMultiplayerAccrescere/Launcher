@@ -1,9 +1,26 @@
 #pragma once
 
 #include <QObject>
-#include <QHostAddress>
+#include <QTimer>
 
-class QUdpSocket;
+#include <RakNet/RakPeerInterface.h>
+
+enum class MessageIdentifiers : uint8_t
+{
+    GET_SERVER_INFO = 185
+};
+
+struct ServerInfo
+{
+    QString serverName;
+    QString gamemode;
+    QString version;
+    QString player;
+    QString bots;
+    QString description;
+
+    bool deserialize(const uint8_t *pData, size_t maxlen, size_t &seek);
+};
 
 class GMPClient : public QObject
 {
@@ -15,13 +32,13 @@ public:
     void start(const QString &address, quint16 port);
 
 public slots:
-    void readyRead();
-    void connected();
+    void update();
 
 signals:
     void serverChecked(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description);
 
 private:
-    uint64_t m_ClientUuid;
-    QUdpSocket *m_pSocket;
+    RakNet::RakPeerInterface *m_pClient;
+
+    QTimer m_Timer;
 };

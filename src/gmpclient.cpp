@@ -1,192 +1,131 @@
-#include <QUdpSocket>
 #include <QStringList>
+#include <QDebug>
 
 #include <random>
 #include <limits>
+
+#include <RakNet/MessageIdentifiers.h>
+#include <RakNet/BitStream.h>
 
 #include "gmpclient.h"
 
 GMPClient::GMPClient(QObject *pParent) :
     QObject(pParent),
-    m_pSocket(new QUdpSocket(this))
+    m_pClient(nullptr)
 {
-    connect(m_pSocket, &QUdpSocket::readyRead, this, &GMPClient::readyRead);
-    connect(m_pSocket, &QUdpSocket::connected, this, &GMPClient::connected);
+    m_Timer.setInterval(10);
+    connect(&m_Timer, &QTimer::timeout, this, &GMPClient::update);
 }
 
 GMPClient::~GMPClient()
 {
-    if(m_pSocket->isOpen())
-        m_pSocket->close();
-
-    m_pSocket->deleteLater();
+    m_Timer.stop();
+    if(m_pClient)
+        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
 }
 
 void GMPClient::start(const QString &address, quint16 port)
 {
-    if(m_pSocket->isOpen())
+    if (m_pClient && m_Timer.isActive())
+        return;
+
+    if (m_Timer.isActive())
+        m_Timer.stop();
+
+    if (m_pClient)
+        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+
+    m_pClient = RakNet::RakPeerInterface::GetInstance();
+
+    char password[] = "b5r6kQ6gp0GcpK4x";
+
+    RakNet::SocketDescriptor sd;
+    m_pClient->Startup(5, &sd, 1);
+    RakNet::ConnectionAttemptResult result = m_pClient->Connect(address.toStdString().c_str(), port, password, sizeof(password) - 1);
+
+    if (result != RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED)
     {
-        m_pSocket->disconnectFromHost();
-        m_pSocket->close();
+        qWarning() << "could not connect to server: " << result;
+        return;
     }
-    m_pSocket->connectToHost(address, port);
+
+    m_Timer.start();
 }
 
-void GMPClient::readyRead()
+void GMPClient::update()
 {
-    QByteArray buf = m_pSocket->readAll();
-    switch(static_cast<unsigned char>(buf[0]))
+    RakNet::Packet *pPacket = m_pClient->Receive();
+    if (!pPacket)
+        return;
+
+    switch (static_cast<uint8_t>(pPacket->data[0]))
     {
-    case 6: // ID_OPEN_CONNECTION_REPLY_1
+    case static_cast<uint8_t>(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED):
     {
-        unsigned char data[] = { 0x07, 0x00, 0xff, 0xff, 0x00, 0xfe, 0xfe, 0xfe,
-                                 0xfe, 0xfd, 0xfd, 0xfd, 0xfd, 0x12, 0x34, 0x56,
-                                 0x78, 0x04, 0xda, 0x87, 0x40, 0xab, 0x7d, 0x0f,
-                                 0x04, 0xb0, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc, 0xcc,
-                                 0xcc, 0xcc };
+        RakNet::BitStream stream;
+        stream.Write(MessageIdentifiers::GET_SERVER_INFO);
 
-
-        *reinterpret_cast<uint64_t *>(&data[23]) = m_ClientUuid;
-
-        m_pSocket->write(reinterpret_cast<char *>(data), sizeof(data));
+        m_pClient->Send(&stream, HIGH_PRIORITY, RELIABLE, 0, pPacket->systemAddress, 0);
         break;
     }
-    case 8: // ID_OPEN_CONNECTION_REPLY_2
+    case static_cast<uint8_t>(MessageIdentifiers::GET_SERVER_INFO):
     {
-        unsigned char data[] = { 0x84, 0x00, 0x00, 0x00, 0x40, 0x01, 0x10, 0x00,
-                                 0x00, 0x00, 0x09, 0x07, 0xf0, 0x00, 0x04, 0xbc,
-                                 0xbc, 0x2b, 0xd4, 0x00, 0x00, 0x00, 0x00, 0x01,
-                                 0x36, 0x7d, 0xf4, 0x00, 0x62, 0x35, 0x72, 0x36,
-                                 0x6b, 0x51, 0x36, 0x67, 0x70, 0x30, 0x47, 0x63,
-                                 0x70, 0x4b, 0x34, 0x78 };
-        m_pSocket->write(reinterpret_cast<char *>(data), sizeof(data));
+        ServerInfo info;
+        size_t seek = 2;
+        if (!info.deserialize(pPacket->data, pPacket->length, seek))
+        {
+            qWarning() << "invalid packet";
+            return;
+        }
+
+        emit serverChecked(info.serverName, info.gamemode, info.version, info.player, info.bots, info.description);
         break;
     }
-    case 0x84: // ID_USER_PACKET_ENUM
+    case static_cast<uint8_t>(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION):
+    case static_cast<uint8_t>(DefaultMessageIDTypes::ID_REMOTE_DISCONNECTION_NOTIFICATION):
     {
-        switch(static_cast<uint8_t>(buf[1]))
-        {
-        case 0:
-        {
-            unsigned char data[] = { 0x84, 0x01, 0x00, 0x00, 0x60, 0x02, 0xf0, 0x01,
-                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x13, 0x04,
-                                     0xda, 0x87, 0x40, 0xab, 0x7d, 0x0f, 0x04, 0x3f,
-                                     0x57, 0xff, 0xd2, 0x00, 0x00, 0x04, 0xff, 0xff,
-                                     0xff, 0xff, 0x00, 0x00, 0x04, 0xff, 0xff, 0xff,
-                                     0xff, 0x00, 0x00, 0x04, 0xff, 0xff, 0xff, 0xff,
-                                     0x00, 0x00, 0x04, 0xff, 0xff, 0xff, 0xff, 0x00,
-                                     0x00, 0x04, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00,
-                                     0x04, 0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x04,
-                                     0xff, 0xff, 0xff, 0xff, 0x00, 0x00, 0x04, 0xff,
-                                     0xff, 0xff, 0xff, 0x00, 0x00, 0x04, 0xff, 0xff,
-                                     0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                     0x20, 0x67, 0x0b, 0x28, 0x00, 0x00, 0x00, 0x00,
-                                     0x01, 0x36, 0x7e, 0x0c, 0x00, 0x00, 0x48, 0x00,
-                                     0x00, 0x00, 0x00, 0x00, 0x01, 0x36, 0x7e, 0x0c,
-                                     0x00, 0x00, 0x08, 0xb9 };
-            m_pSocket->write(reinterpret_cast<char *>(data), sizeof(data));
-            break;
-        }
-        case 1:
-        {
-            unsigned char data[] = { 0x84, 0x02, 0x00, 0x00, 0x00, 0x00, 0x88, 0x03,
-                                     0x00, 0x00, 0x00, 0x00, 0x63, 0xf4, 0xa8, 0x30,
-                                     0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x7e, 0x6f };
-            m_pSocket->write(reinterpret_cast<char *>(data), sizeof(data));
-            break;
-        }
-        case 2:
-        {
-            const char *pStringData = reinterpret_cast<const char *>(buf.data());
-            int32_t offset = 17;
-
-            if(buf.size() < offset + 1)
-                return;
-
-            uint8_t length = static_cast<uint8_t>(buf[16]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString serverName = QString::fromUtf8(pStringData + offset, length);
-            offset += length + 2;
-            length = static_cast<uint8_t>(buf[offset - 1]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString gamemode = QString::fromUtf8(pStringData + offset, length);
-            offset += length + 2;
-            length = static_cast<uint8_t>(buf[offset - 1]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString version = QString::fromUtf8(pStringData + offset, length);
-            offset += length + 2;
-            length = static_cast<uint8_t>(buf[offset - 1]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString player = QString::fromUtf8(pStringData + offset, length);
-            offset += length + 2;
-            length = static_cast<uint8_t>(buf[offset - 1]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString bots = QString::fromUtf8(pStringData + offset, length);
-            offset += length + 2;
-            length = static_cast<uint8_t>(buf[offset - 1]);
-
-            if(buf.size() < offset + length + 2)
-                return;
-
-            QString description = QString::fromUtf8(pStringData + offset, length);
-            m_pSocket->disconnectFromHost();
-            m_pSocket->close();
-
-            emit serverChecked(serverName, gamemode, version, player, bots, description);
-            break;
-        }
-        }
-        break;
-    }
-    case 0xC0:
-    {
+        m_Timer.stop();
+        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+        m_pClient = nullptr;
         break;
     }
     }
 }
 
-void GMPClient::connected()
+bool readString(const uint8_t *pData, size_t maxlen, size_t &seek, QString &string)
 {
-    // Generate new client ID
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<uint64_t> dis(0, std::numeric_limits<uint64_t>::max());
+    if (sizeof(uint8_t) + seek > maxlen)
+        return false;
 
-    m_ClientUuid = dis(gen);
+    uint8_t len = pData[seek];
+    ++seek;
+    if (len > maxlen - seek)
+        return false;
 
-    unsigned char data[1172] = { 0 };
-    data[0] = 0x05;
-    data[1] = 0x00;
-    data[2] = 0xff;
-    data[3] = 0xff;
-    data[4] = 0x00;
-    data[5] = 0xfe;
-    data[6] = 0xfe;
-    data[7] = 0xfe;
-    data[8] = 0xfe;
-    data[9] = 0xfd;
-    data[10] = 0xfd;
-    data[11] = 0xfd;
-    data[12] = 0xfd;
-    data[13] = 0x12;
-    data[14] = 0x34;
-    data[15] = 0x56;
-    data[16] = 0x78;
-    data[17] = 0x05;
-    m_pSocket->write(reinterpret_cast<const char *>(data), sizeof(data));
+    string = QString::fromUtf8(reinterpret_cast<const char *>(pData + seek), len);
+    seek += len + 1;
+    return true;
+}
+
+bool ServerInfo::deserialize(const uint8_t *pData, size_t maxlen, size_t &seek)
+{
+    if (!readString(pData, maxlen, seek, serverName))
+        return false;
+
+    if (!readString(pData, maxlen, seek, gamemode))
+        return false;
+
+    if (!readString(pData, maxlen, seek, version))
+        return false;
+
+    if (!readString(pData, maxlen, seek, player))
+        return false;
+
+    if (!readString(pData, maxlen, seek, bots))
+        return false;
+
+    if (!readString(pData, maxlen, seek, description))
+        return false;
+
+    return true;
 }
