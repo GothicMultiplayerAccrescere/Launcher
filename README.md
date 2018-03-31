@@ -11,14 +11,5 @@ This launcher is a nice alternative to the original launcher. It's written on Li
 ## Galery
 ![](https://raw.githubusercontent.com/TRUEPADDii/GothicMultiplayerLauncher/master/mainwindow.png)
 
-## TODO
-- [ ] Fix UDP stuff
-- [ ] add linux injector
-- [x] write start parameter to file
-- [x] test on windows
-- [ ] fix windows style
-- [x] add windows injector
-
-
 ## License
 [WTFPL](https://github.com/TRUEPADDii/GothicMultiplayerLauncher/blob/master/LICENSE)
