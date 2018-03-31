@@ -1,9 +1,6 @@
 #include <QStringList>
 #include <QDebug>
 
-#include <random>
-#include <limits>
-
 #include <RakNet/MessageIdentifiers.h>
 #include <RakNet/BitStream.h>
 
@@ -20,8 +17,7 @@ GMPClient::GMPClient(QObject *pParent) :
 GMPClient::~GMPClient()
 {
     m_Timer.stop();
-    if(m_pClient)
-        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+    RakNet::RakPeerInterface::DestroyInstance(m_pClient);
 }
 
 void GMPClient::start(const QString &address, quint16 port)
