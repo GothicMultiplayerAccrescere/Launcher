@@ -41,6 +41,7 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
     add_definitions(-D_UNICODE)
+    set(SOCKET_LIB "wsock32 ws2_32")
 else()
     # MINGW
     # fill the build definitions for the MinGW build subsystem in here
@@ -102,4 +103,4 @@ if (MSVC)
 	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS "/level='requireAdministrator' /uiAccess='false'")
 endif()
 
-target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet wsock32 ws2_32)
+target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})
