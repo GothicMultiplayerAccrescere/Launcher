@@ -55,13 +55,13 @@ endif()
 # define the include directories
 include_directories(
     "${CMAKE_SOURCE_DIR}/include"
-    )
+)
 
 # list include files to variables
 file (GLOB_RECURSE INCLUDE_FILES
     LIST_DIRECTORIES false
     include/*.h
-    )
+)
 
 # list source files to variables
 file (GLOB_RECURSE SRC_FILES
@@ -74,41 +74,29 @@ file(GLOB_RECURSE UI_FILES
     src/*.ui
 )
 
-# resource files
+# list resource files to variables
 file(GLOB_RECURSE RES_FILES
-    src/*.*
+    resource/*.*
 )
 
+# readme for IDE recognition
 set(MISC
     README.md
 )
 
-source_group("source" FILES ${SRC_FILES})
-
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/lib)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
+
 add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
 
 add_dependencies(${TARGET_NAME} RakNet)
 
-target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet)
-
-# FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
-if (WIN32)
-    if (MSVC)
-        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
-        set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-    elseif(MINGW)
-    endif()
-endif()
-
-# link additional libraries to the target
-if (MINGW)
-    # FIXME: merge this with MSVC linking if available in the future
-    #target_link_libraries(${TARGET_NAME} ${QT})
-elseif()
-    # FIXME: use proper library check if available later on (currently crashing MSVC)
-    #target_link_libraries(${TARGET_NAME} QT)
-endif()
+target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet wsock32 ws2_32)
