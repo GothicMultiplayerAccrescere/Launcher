@@ -33,7 +33,6 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
 # for the different defined compilers
 # extend this for more build systems later on
 if (MSVC)
-
     # VISUAL STUDIO
     # fill the build definitions for the MSVC build subsystem in here
     set_property (GLOBAL PROPERTY USE_FOLDERS ON)
@@ -68,53 +67,24 @@ file (GLOB_RECURSE INCLUDE_FILES
 file (GLOB_RECURSE SRC_FILES
     src/*.cpp
     src/*.h
-    )
+)
 
 # list ui files to variables
 file(GLOB_RECURSE UI_FILES
     src/*.ui
-    )
-
-set(RC_FILE
-    resource/resource.qrc
-    resource/gml.exe.manifest
-    )
+)
 
 set(MISC
     README.md
-    )
-
-# set up filter groups for the file lists
-if (MSVC)
-    foreach(_source IN ITEMS ${INCLUDE_FILES})
-        get_filename_component(_source_path "${_source}" PATH)
-        file(RELATIVE_PATH _source_path_rel "${CMAKE_SOURCE_DIR}" "${_source_path}")
-        string(REPLACE "/" "\\" _group_path "${_source_path_rel}")
-        source_group("${_group_path}" FILES "${_source}")
-    endforeach()
-else()
-    source_group("includes" FILES ${INCLUDE_FILES})
-endif()
+)
 
 source_group("source" FILES ${SRC_FILES})
-
-# create RES_FILES variable
-set(RES_FILES "")
-# compile the resource file for windows
-# if this is the specified platform (by compiler)
-if (MSVC OR MINGW)
-    set(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
-    set(RES_FILES "resource/resource.rc")
-    set(CMAKE_RC_COMPILER_INIT windres)
-    ENABLE_LANGUAGE(RC)
-    SET(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
-endif()
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
-add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RC_FILE} ${RES_FILES} ${MISC})
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${MISC})
 
 add_dependencies(${TARGET_NAME} RakNet)
 
@@ -122,7 +92,6 @@ target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network pthread RakNet)
 
 # FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
 if (WIN32)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}/resource/gml.exe.manifest\" -outputresource:\"gml.exe\" COMMENT "Adding penis...")
     if (MSVC)
         set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG "/SUBSYSTEM:CONSOLE")
         set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
