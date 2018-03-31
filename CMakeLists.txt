@@ -41,7 +41,7 @@ if (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/GR- /Zi /Od /DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
     add_definitions(-D_UNICODE)
-    set(SOCKET_LIB "wsock32 ws2_32")
+    set(SOCKET_LIB wsock32 ws2_32)
 else()
     # MINGW
     # fill the build definitions for the MinGW build subsystem in here
