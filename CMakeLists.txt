@@ -74,6 +74,11 @@ file(GLOB_RECURSE UI_FILES
     src/*.ui
 )
 
+# resource files
+file(GLOB_RECURSE RES_FILES
+    src/*.*
+)
+
 set(MISC
     README.md
 )
@@ -84,7 +89,7 @@ qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
 # set up build pathes and add the executable definition
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
-add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${MISC})
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
 
 add_dependencies(${TARGET_NAME} RakNet)
 
