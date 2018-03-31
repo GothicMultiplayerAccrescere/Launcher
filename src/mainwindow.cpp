@@ -92,8 +92,8 @@ MainWindow::MainWindow() :
         pDialog->show();
     });
 
-    connect(m_pUi->actionQuit, &QAction::triggered, [this]() { qApp->quit(); });
-    connect(m_pUi->actionOptions, &QAction::triggered, [this]()
+    connect(m_pUi->actionQuit, &QAction::triggered, []() { qApp->quit(); });
+    connect(m_pUi->actionOptions, &QAction::triggered, []()
     {
         Options *pOptions = new Options;
         pOptions->setModal(true);
@@ -110,7 +110,7 @@ MainWindow::~MainWindow()
 void MainWindow::startProcess()
 {
     QModelIndexList index = m_pUi->listServer->selectionModel()->selectedRows();
-    if(index.size() != 1)
+    if (index.size() != 1)
         return;
 
     QString launcherDir = QCoreApplication::applicationDirPath();
@@ -120,7 +120,7 @@ void MainWindow::startProcess()
     QString workingDir = s.value("working_directory").toString() + "/System";
     s.endGroup();
 
-    int row = index.at(0).row();
+    int row = index.front().row();
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
     quint16 port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
@@ -131,13 +131,20 @@ void MainWindow::startProcess()
     // port=28960
 
     QString filename;
-    if(!workingDir.isEmpty())
+    std::string name;
+    if (!workingDir.isEmpty())
+    {
         filename = workingDir + "/gmp_connect.cfg";
+        name = workingDir.toStdString() + "/" + s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
+    }
     else
+    {
         filename = "gmp_connect.cfg";
+        name = s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
+    }
 
     QFile connectConf(filename);
-    if(!connectConf.open(QFile::WriteOnly))
+    if (!connectConf.open(QFile::WriteOnly))
     {
         QMessageBox::critical(this, "Error", "Could not open gmp_connect.cfg");
         return;
@@ -147,35 +154,13 @@ void MainWindow::startProcess()
 
     connectConf.close();
 
-#ifdef __unix__
-    s.beginGroup("Linux");
-    if(m_pGameProcess)
-    {
-        QMessageBox::warning(this, "Already running", "The game is already running");
-        return;
-    }
-    m_pGameProcess = new QProcess(this);
-    connect(m_pGameProcess, static_cast<void(QProcess::*)(int)>(&QProcess::finished), [this](int exitCode)
-    {
-        if(exitCode)
-            QMessageBox::critical(this, "Error", "Gothic exited with error code");
-        m_pGameProcess->deleteLater();
-        m_pGameProcess = nullptr;
-    });
-    m_pGameProcess->setEnvironment(QStringList() << "TARGET_DLL=gmp.dll" << "JUMP_DLL=loader.dll");
-    m_pGameProcess->setArguments(QStringList() << "gothic.exe");
-    m_pGameProcess->setProgram(s.value("wine_binary", "wine").toString());
-    m_pGameProcess->setWorkingDirectory(workingDir);
-    m_pGameProcess->start();
-    s.endGroup();
-#else
+#ifndef __unix__
     s.beginGroup("Windows");
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOA si = { 0 };
     si.cb = sizeof(si);
 
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
-    std::string name = workingDir.toStdString() + "/" + s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
     std::string args(name + " -session ZNOEXHND");
     _putenv(("TARGET_DLL=" + launcherDir.toStdString() + "/gmp-r10/gmp.dll").c_str());
     QString path = getenv("PATH");
@@ -193,10 +178,10 @@ void MainWindow::startProcess()
     }
 
     DWORD old;
-    const char *data = "loader.dll";
-    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, PAGE_EXECUTE_READWRITE, &old);
-    WriteProcessMemory(pi.hProcess, (void*)0x0088B6FC, data, strlen(data) + 1, NULL);
-    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, strlen(data) + 1, old, &old);
+    const char data[] = "loader.dll";
+    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, sizeof(data), PAGE_EXECUTE_READWRITE, &old);
+    WriteProcessMemory(pi.hProcess, (void*)0x0088B6FC, data, sizeof(data), NULL);
+    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, sizeof(data), old, &old);
 
     ResumeThread(pi.hThread);
     CloseHandle(pi.hThread);
