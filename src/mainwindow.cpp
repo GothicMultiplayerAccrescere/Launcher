@@ -153,7 +153,7 @@ void MainWindow::startProcess()
     QFile connectConf(filename);
     if (!connectConf.open(QFile::WriteOnly))
     {
-        QMessageBox::critical(this, "Error", "Could not open gmp_connect.cfg");
+        QMessageBox::critical(this, "Error", "Could not open " + filename);
         return;
     }
 
