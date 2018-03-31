@@ -117,7 +117,14 @@ void MainWindow::startProcess()
 
     QSettings s;
     s.beginGroup("gothic");
-    QString workingDir = s.value("working_directory").toString() + "/system";
+    QString workingDir = s.value("working_directory").toString();
+    if (workingDir.isEmpty())
+    {
+        QMessageBox::critical(this, "Error", "could not find working directory");
+        return;
+    }
+    workingDir += "/system";
+    qDebug() << workingDir;
     s.endGroup();
 
     int row = index.front().row();
@@ -155,20 +162,12 @@ void MainWindow::startProcess()
     connectConf.close();
 
 #ifndef __unix__
-    s.beginGroup("Windows");
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOA si = { 0 };
     si.cb = sizeof(si);
 
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
     std::string args(name + " -session ZNOEXHND");
-    _putenv(("TARGET_DLL=" + launcherDir.toStdString() + "/gmp-r10/gmp.dll").c_str());
-    QString path = getenv("PATH");
-    path = "PATH=" + path + ";" + launcherDir + "/bin";
-    path.replace('/', '\\');
-    _putenv(path.toStdString().c_str());
-
-    qDebug() << getenv("PATH");
 
     if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
     {
@@ -177,15 +176,14 @@ void MainWindow::startProcess()
         return;
     }
 
-    DWORD old;
-    const char data[] = "loader.dll";
-    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, sizeof(data), PAGE_EXECUTE_READWRITE, &old);
-    WriteProcessMemory(pi.hProcess, (void*)0x0088B6FC, data, sizeof(data), NULL);
-    VirtualProtectEx(pi.hProcess, (void*)0x0088B6FC, sizeof(data), old, &old);
+    std::string dllPath = launcherDir.toStdString() + "/gmp-r10/gmp.dll";
+    LPVOID hLLA = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
+    LPVOID hLib = VirtualAllocEx(pi.hProcess, NULL, dllPath.length(), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    WriteProcessMemory(pi.hProcess, hLib, dllPath.c_str(), dllPath.length(), NULL);
+    CreateRemoteThread(pi.hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)hLLA, hLib, NULL, NULL);
 
     ResumeThread(pi.hThread);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
-    s.endGroup();
 #endif
 }
