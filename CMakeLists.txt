@@ -13,6 +13,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Network REQUIRED)
+find_package(Threads REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
@@ -88,7 +89,7 @@ add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${MISC
 
 add_dependencies(${TARGET_NAME} RakNet)
 
-target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network pthread RakNet)
+target_link_libraries(${TARGET_NAME} Qt5::Widgets Qt5::Network ${CMAKE_THREAD_LIBS_INIT} RakNet)
 
 # FIXME: nasty workaround here because MSVC didn't recognize the subsystem else
 if (WIN32)
