@@ -17,7 +17,7 @@ public:
 
 private:
     Ui::DialogAddServer *m_pUi;
-    QRegExpValidator m_pIPv4Validator;
+    QRegExpValidator m_IPv4Validator;
     static QRegExp ipV4Regex;
 
 signals:
