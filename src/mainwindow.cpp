@@ -113,8 +113,8 @@ void MainWindow::startProcess()
     if (index.size() != 1)
         return;
 
-	int row = index.front().row();
-	qWarning() << "[Information]: Connecting to: " << m_pServerModel->data(m_pServerModel->index(row, Server::P_ServerName), Qt::DisplayRole).toString();
+    int row = index.front().row();
+    qWarning() << "[Information]: Connecting to: " << m_pServerModel->data(m_pServerModel->index(row, Server::P_ServerName), Qt::DisplayRole).toString();
 
     QString launcherDir = QCoreApplication::applicationDirPath();
 
@@ -156,13 +156,13 @@ void MainWindow::startProcess()
     if (!connectConf.open(QFile::WriteOnly))
     {
         //QMessageBox::critical(this, "Error", "Could not open " + filename);
-		qWarning() << "[Information]: Could not open gmp config file. Ignoring...";
+        qWarning() << "[Information]: Could not open gmp config file. Ignoring...";
     }
-	else
-	{
-		connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
-		connectConf.close();
-	}
+    else
+    {
+        connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
+        connectConf.close();
+    }
 
 #ifndef __unix__
     PROCESS_INFORMATION pi = { 0 };
@@ -174,9 +174,9 @@ void MainWindow::startProcess()
 
     if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
     {
-		qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
-		qWarning() << "[Information]: Args: (" << args.c_str() << ")";
-		qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
+        qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
+        qWarning() << "[Information]: Args: (" << args.c_str() << ")";
+        qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
         return;
     }
 
