@@ -120,7 +120,7 @@ void MainWindow::startProcess()
     QString workingDir = s.value("working_directory").toString();
     if (workingDir.isEmpty())
     {
-        QMessageBox::critical(this, "Error", "could not find working directory");
+        QMessageBox::critical(this, "Error", "could not find Gothic directory");
         return;
     }
     workingDir += "/system";
