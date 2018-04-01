@@ -13,7 +13,7 @@ DialogAddServer::DialogAddServer(QWidget *parent) :
 
     connect(m_pUi->buttonAddServer, &QPushButton::clicked, [this]()
     {
-        emit selected(m_pUi->editServerName->text(), m_pUi->editUrl->text(), m_pUi->editPort->value());
+        emit selected(m_pUi->editServerName->text(), m_pUi->editUrl->text(), static_cast<quint16>(m_pUi->editPort->value()));
         close();
     });
 
