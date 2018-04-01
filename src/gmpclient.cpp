@@ -74,7 +74,9 @@ void GMPClient::update()
             return;
         }
 
-        emit serverChecked(info.serverName, info.gamemode, info.version, info.player, info.bots, info.description, m_pClient->GetAveragePing(pPacket->systemAddress));
+        info.averagePing = m_pClient->GetAveragePing(pPacket->systemAddress);
+
+        emit serverChecked(info);
         break;
     }
     case static_cast<uint8_t>(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION):

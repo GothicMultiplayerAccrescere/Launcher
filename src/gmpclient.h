@@ -18,6 +18,7 @@ struct ServerInfo
     QString player;
     QString bots;
     QString description;
+    int32_t averagePing;
 
     bool deserialize(const uint8_t *pData, size_t maxlen, size_t &seek);
 };
@@ -35,7 +36,7 @@ public slots:
     void update();
 
 signals:
-    void serverChecked(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description, int averagePing);
+    void serverChecked(const ServerInfo &info);
 
 private:
     RakNet::RakPeerInterface *m_pClient;
