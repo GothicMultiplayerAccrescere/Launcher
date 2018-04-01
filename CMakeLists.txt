@@ -45,7 +45,7 @@ if (MSVC)
 elseif(UNIX)
     # Compilation under Linux (Basically MinGW config + pthread flag, -static stdc(++) linkage (causes QApplication crash)
     # fill the build definitions for Linux build subsystem in here
-    set(CMAKE_CXX_FLAGS " -std=c++14 -fpermissive -Wall -pthread")
+    set(CMAKE_CXX_FLAGS " -std=c++14 -fpermissive -Wall -Wextra -pthread")
     set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all")
     set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
