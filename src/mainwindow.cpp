@@ -113,6 +113,9 @@ void MainWindow::startProcess()
     if (index.size() != 1)
         return;
 
+	int row = index.front().row();
+	qWarning() << "[Information]: Connecting to: " << m_pServerModel->data(m_pServerModel->index(row, Server::P_ServerName), Qt::DisplayRole).toString();
+
     QString launcherDir = QCoreApplication::applicationDirPath();
 
     QSettings s;
@@ -120,14 +123,14 @@ void MainWindow::startProcess()
     QString workingDir = s.value("working_directory").toString();
     if (workingDir.isEmpty())
     {
-        QMessageBox::critical(this, "Error", "could not find working directory");
-        return;
+		// QMessageBox::warning(this, "Warning", "Could not find working directory. Using defaults.");
+		qWarning() << "[Warning]: Could not find working directory. Using defaults.";
+		workingDir = QCoreApplication::applicationDirPath();
     }
+
     workingDir += "/system";
-    qDebug() << workingDir;
     s.endGroup();
 
-    int row = index.front().row();
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
     quint16 port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
@@ -153,13 +156,14 @@ void MainWindow::startProcess()
     QFile connectConf(filename);
     if (!connectConf.open(QFile::WriteOnly))
     {
-        QMessageBox::critical(this, "Error", "Could not open " + filename);
-        return;
+        //QMessageBox::critical(this, "Error", "Could not open " + filename);
+		qWarning() << "[Information]: Could not open gmp config file. Ignoring...";
     }
-
-    connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
-
-    connectConf.close();
+	else
+	{
+		connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
+		connectConf.close();
+	}
 
 #ifndef __unix__
     PROCESS_INFORMATION pi = { 0 };
@@ -171,8 +175,9 @@ void MainWindow::startProcess()
 
     if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
     {
-        qWarning() << "error creating process: " << GetLastError();
-        qWarning() << "arguments: " << args.c_str();
+		qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
+		qWarning() << "[Information]: Args: (" << args.c_str() << ")";
+		qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
         return;
     }
 
