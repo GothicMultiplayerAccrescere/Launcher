@@ -36,7 +36,7 @@ public:
     inline void setServerVersion(const QString &serverVersion) { m_ServerVersion = serverVersion; }
     inline void setPlayerCount(const QString &playerCount) { m_PlayerCount = playerCount; }
     inline void setBotCount(const QString &botCount) { m_BotCount = botCount; }
-    inline void setPintCurrent(quint64 ping) { m_PingCurrent = ping; }
+    inline void setPingCurrent(qint32 ping) { m_PingCurrent = ping; }
 
     inline const QString &name() const { return m_Name; }
     inline const QString &url() const { return m_Url; }
@@ -54,7 +54,7 @@ public slots:
     void update();
 
 private slots:
-    void updateData(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description, int averagePing);
+    void updateData(const ServerInfo &info);
 
 signals:
     void updated();

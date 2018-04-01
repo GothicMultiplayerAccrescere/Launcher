@@ -17,15 +17,15 @@ void Server::update()
     m_pClient->start(m_Url, m_Port);
 }
 
-void Server::updateData(const QString &serverName, const QString &gamemode, const QString &version, const QString &player, const QString &bots, const QString &description, int averagePing)
+void Server::updateData(const ServerInfo &info)
 {
-    m_ServerName = serverName;
-    m_GameMode = gamemode;
-    m_ServerVersion = version;
-    m_PlayerCount = player;
-    m_BotCount = bots;
-    m_Description = description;
-    m_PingCurrent = averagePing;
+    m_ServerName = info.serverName;
+    m_GameMode = info.gamemode;
+    m_ServerVersion = info.version;
+    m_PlayerCount = info.player;
+    m_BotCount = info.bots;
+    m_Description = info.description;
+    m_PingCurrent = info.averagePing;
 
     emit updated();
 }

@@ -8,7 +8,6 @@ ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
 {
     QSettings s;
-
     m_Timer.setInterval(s.value("Misc/RefreshRate", 10000).toInt());
 
     int rows = s.beginReadArray("Server");
@@ -143,7 +142,7 @@ bool ServerModel::setData(const QModelIndex &index, const QVariant &value, int r
         server->setBotCount(value.toString());
         return true;
     case Server::P_Ping:
-        server->setPintCurrent(static_cast<quint64>(value.toLongLong()));
+        server->setPingCurrent(value.toInt());
         return true;
     }
 
