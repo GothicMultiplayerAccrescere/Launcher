@@ -1,15 +1,20 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QRegExp>
 
 #include "dialogaddserver.h"
 #include "ui_dialogaddserver.h"
 
+QRegExp DialogAddServer::ipV4Regex = QRegExp("^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$");
+
 DialogAddServer::DialogAddServer(QWidget *parent) :
     QDialog(parent),
-    m_pUi(new Ui::DialogAddServer)
+    m_pUi(new Ui::DialogAddServer),
+    m_IPv4Validator(ipV4Regex, this)
 {
     m_pUi->setupUi(this);
+    m_pUi->editUrl->setValidator(&m_IPv4Validator);
 
     connect(m_pUi->buttonAddServer, &QPushButton::clicked, [this]()
     {
