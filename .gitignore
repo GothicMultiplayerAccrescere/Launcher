@@ -27,6 +27,7 @@
 #build dir
 bin/
 build/
+test/
  
 # clion
 .idea/
