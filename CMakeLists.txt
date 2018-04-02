@@ -58,6 +58,7 @@ else()
     set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
     add_definitions(-D_UNICODE)
+    set(SOCKET_LIB wsock32 ws2_32)
 endif()
 
 

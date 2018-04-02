@@ -12,11 +12,13 @@
 #include <QProcess>
 #include <QAction>
 #include <QDebug>
+#include <QMenu>
 
 #include "dialogaddserver.h"
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "servermodel.h"
+#include "dialoginfo.h"
 #include "server.h"
 #include "options.h"
 
@@ -98,6 +100,11 @@ MainWindow::MainWindow() :
         Options *pOptions = new Options;
         pOptions->setModal(true);
         pOptions->show();
+    });
+    connect(m_pUi->actionAbout, &QAction::triggered, []()
+    {
+        DialogInfo *pInfo = new DialogInfo;
+        pInfo->show();
     });
 }
 
