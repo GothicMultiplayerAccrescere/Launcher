@@ -1,4 +1,6 @@
 #include <QSettings>
+#include <QDebug>
+
 #include <functional>
 
 #include "servermodel.h"
@@ -8,9 +10,9 @@ ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
 {
     QSettings s;
-    m_Timer.setInterval(s.value("Misc/RefreshRate", 10000).toInt());
+    m_Timer.setInterval(s.value("misc/refresh_rate", 10000).toInt());
 
-    int rows = s.beginReadArray("Server");
+    int rows = s.beginReadArray("server");
     for(int i = 0; i < rows; ++i)
     {
         s.setArrayIndex(i);
