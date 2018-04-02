@@ -6,6 +6,7 @@
 class QDataWidgetMapper;
 class QProcess;
 class ServerModel;
+class Ticker;
 
 namespace Ui
 {
@@ -26,4 +27,5 @@ private:
     ServerModel *m_pServerModel;
     QDataWidgetMapper *m_pMapper;
     QProcess *m_pGameProcess;
+    Ticker *m_pLiveTicker;
 };

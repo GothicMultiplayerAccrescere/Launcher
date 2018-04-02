@@ -343,6 +343,16 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4"/>
         </item>
+        <item>
+         <layout class="QHBoxLayout" name="layoutTicker" stretch="">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
+          </property>
+         </layout>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="login">
