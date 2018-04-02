@@ -12,7 +12,7 @@ class Options : public QDialog
 
 public:
     explicit Options(QWidget *pParent = nullptr);
-    ~Options();
+    virtual ~Options() override;
 
 public slots:
     void save();

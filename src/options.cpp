@@ -34,6 +34,7 @@ Options::Options(QWidget *pParent) :
         pDialog->exec();
         QDir dir = pDialog->directory();
         m_pUi->editGothicPath->setText(dir.path());
+        delete pDialog;
     });
 
     QSettings s;

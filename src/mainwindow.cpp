@@ -89,7 +89,8 @@ MainWindow::MainWindow() :
         DialogAddServer *pDialog = new DialogAddServer(this);
         connect(pDialog, &DialogAddServer::selected, m_pServerModel, &ServerModel::appendRecord);
         pDialog->setModal(true);
-        pDialog->show();
+        pDialog->exec();
+        delete pDialog;
     });
 
     connect(m_pUi->actionQuit, &QAction::triggered, []() { qApp->quit(); });
@@ -97,7 +98,8 @@ MainWindow::MainWindow() :
     {
         Options *pOptions = new Options;
         pOptions->setModal(true);
-        pOptions->show();
+        pOptions->exec();
+        delete pOptions;
     });
 }
 
