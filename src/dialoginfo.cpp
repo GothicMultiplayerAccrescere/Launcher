@@ -7,8 +7,8 @@ DialogInfo::DialogInfo(QWidget *parent) :
 {
 	ui->setupUi(this);
 
-	QPixmap* logo = new QPixmap(":/logo/logo.png");
-	QGraphicsScene* scene = new QGraphicsScene(this);
+	logo = new QPixmap(":/logo/logo.png");
+	scene = new QGraphicsScene(this);
 	scene->addPixmap(*logo);
 	ui->graphicsView->setScene(scene);
 	ui->graphicsView->show();
@@ -16,5 +16,7 @@ DialogInfo::DialogInfo(QWidget *parent) :
 
 DialogInfo::~DialogInfo()
 {
+	delete scene;
+	delete logo;
     delete ui;
 }

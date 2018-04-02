@@ -2,6 +2,7 @@
 #define DIALOGINFO_H
 
 #include <QDialog>
+#include <QGraphicsScene>
 
 namespace Ui {
 class DialogInfo;
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::DialogInfo *ui;
+	QPixmap* logo;
+	QGraphicsScene* scene;
 };
 
 #endif // DIALOGINFO_H
