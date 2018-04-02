@@ -8,8 +8,8 @@
 
 int main(int argc, char *argv[])
 {
-    QApplication::setApplicationDisplayName("Gothic Launcher");
-    QApplication::setApplicationName("GMP Launcher");
+    QApplication::setApplicationDisplayName("Gothic Multiplayer Launcher");
+    QApplication::setApplicationName("Gothic Multiplayer Launcher");
     QApplication::setApplicationVersion("v0.5.3");
     QApplication::setOrganizationName("Public domain");
 
