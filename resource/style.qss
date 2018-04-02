@@ -1,0 +1,121 @@
+QPushButton
+{
+	font-family: Exocet;
+	color:white;
+	background-color:rgba(20, 20, 20, 130);
+}
+
+QLabel
+{
+	color:white;
+}
+
+QLineEdit:hover
+{
+	background-color:#00FFF6;
+}
+
+QCheckBox
+{
+	background-color:transparent;
+}
+
+QCheckBox::indicator
+{
+	background-color:rgba(20, 20, 20, 130);
+}
+
+QCheckBox::indicator:unchecked
+{
+    image: url(:/controls/checkbox_unchecked.png);
+}
+
+QCheckBox::indicator:unchecked:hover
+{
+    image: url(:/controls/checkbox_unchecked_hover.png);
+}
+
+QCheckBox::indicator:checked
+{
+    image: url(:/controls/checkbox_checked.png);
+}
+
+QCheckBox::indicator:checked:hover
+{
+    image: url(:/controls/checkbox_checked_hover.png);
+}
+
+QRadioButton
+{
+	border-radius:5px;
+}
+
+QRadioButton::indicator
+{
+	background-color:rgba(20, 20, 20, 130);
+	border-radius:5px;
+	border-none;
+}
+
+QRadioButton::indicator::unchecked
+{
+    image: url(:/controls/radiobutton_unchecked.png);
+}
+
+QRadioButton::indicator:unchecked:hover
+{
+    image: url(:/controls/radiobutton_unchecked_hover.png);
+}
+
+QRadioButton::indicator::checked
+{
+    image: url(:/controls/radiobutton_checked.png);
+}
+
+QRadioButton::indicator:checked:hover
+{
+    image: url(:/controls/radiobutton_checked_hover.png);
+}
+
+QComboBox::down-arrow
+{
+    image: url(:/controls/dropdown_arrow.png);
+}
+
+QDateEdit
+{
+	background-color:rgba(20, 20, 20, 130);
+	border:1px solid black;
+	color: white;
+}
+
+QDateEdit::drop-down
+{
+	width: 24px;
+	border:none;
+	border-left:1px solid black;
+}
+
+QComboBox
+{
+	padding:3px;
+    border: 1px solid black;
+    color:white;
+    background-color:rgba(20, 20, 20, 130);
+}
+
+QComboBox::drop-down
+{
+	border:none;
+	width:24px;
+	border-left: 1px solid black;
+}
+
+QComboBox QAbstractItemView
+{
+	selection-background-color: rgba(160, 135, 56, 180);
+	dding:3px;
+	border: 1px solid black;
+	color:white;
+	background-color:rgba(20, 20, 20, 130);
+}
