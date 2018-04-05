@@ -26,6 +26,4 @@ private:
     Ui::MainWindow *m_pUi;
     ServerModel *m_pServerModel;
     QDataWidgetMapper *m_pMapper;
-    QProcess *m_pGameProcess;
-    Ticker *m_pLiveTicker;
 };

@@ -21,7 +21,6 @@
 #include "dialoginfo.h"
 #include "server.h"
 #include "options.h"
-#include "ticker/ticker.h"
 
 #ifndef __unix__
 #include <windows.h>
@@ -31,13 +30,9 @@ MainWindow::MainWindow() :
     QMainWindow(nullptr),
     m_pUi(new Ui::MainWindow),
     m_pServerModel(new ServerModel),
-    m_pMapper(new QDataWidgetMapper(this)),
-    m_pGameProcess(nullptr),
-    m_pLiveTicker(new Ticker(this))
+    m_pMapper(new QDataWidgetMapper(this))
 {
     m_pUi->setupUi(this);
-
-    m_pUi->layoutTicker->addWidget(m_pLiveTicker);
 
     m_pMapper->setModel(m_pServerModel);
     m_pMapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
@@ -117,7 +112,6 @@ MainWindow::MainWindow() :
 MainWindow::~MainWindow()
 {
     delete m_pUi;
-    delete m_pGameProcess;
 }
 
 void MainWindow::startProcess()
