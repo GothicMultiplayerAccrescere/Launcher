@@ -5,6 +5,27 @@ project(GothicMultiplayerLauncher)
 # executable name
 set(TARGET_NAME gml)
 
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" tag
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_TAG
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_DATE
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+execute_process(COMMAND
+    "${GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUTPUT_VARIABLE GIT_COMMIT
+    ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -45,7 +66,7 @@ if (MSVC)
 elseif(UNIX)
     # Compilation under Linux (Basically MinGW config + pthread flag, -static stdc(++) linkage (causes QApplication crash)
     # fill the build definitions for Linux build subsystem in here
-    set(CMAKE_CXX_FLAGS " -std=c++14 -fpermissive -Wall -Wextra -pthread")
+    set(CMAKE_CXX_FLAGS "-std=c++14 -fpermissive -Wall -Wextra -pthread")
     set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all")
     set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
@@ -61,6 +82,8 @@ else()
     set(SOCKET_LIB wsock32 ws2_32)
 endif()
 
+#TODO: can some windows folks make this work with vs plz?
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGIT_TAG=\"${GIT_TAG}\" -DGIT_DATE=\"${GIT_DATE}\" -DGIT_COMMIT=\"${GIT_COMMIT}\"")
 
 # define the include directories
 include_directories(
@@ -86,7 +109,8 @@ file(GLOB_RECURSE UI_FILES
 
 # list resource files to variables
 file(GLOB_RECURSE RES_FILES
-    resource/*.*
+    resource/*.qrc
+    resource/*.rc
 )
 
 # readme for IDE recognition
