@@ -23,6 +23,8 @@ public slots:
     void startProcess();
 
 private:
+    void setLineEditsEnabled(bool enabled);
+
     Ui::MainWindow *m_pUi;
     ServerModel *m_pServerModel;
     QDataWidgetMapper *m_pMapper;

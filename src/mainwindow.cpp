@@ -71,6 +71,7 @@ MainWindow::MainWindow() :
             m_pUi->serverDescription->clear();
             m_pUi->nickname->clear();
             m_pUi->editAlias->clear();
+            setLineEditsEnabled(false);
         }
         else
         {
@@ -82,6 +83,7 @@ MainWindow::MainWindow() :
             m_pUi->buttonJoin->setEnabled(true);
             m_pUi->buttonRemoveServer->setEnabled(true);
             m_pMapper->setCurrentIndex(m_pUi->listServer->selectionModel()->selectedRows().at(0).row());
+            setLineEditsEnabled(true);
         }
     });
 
@@ -107,6 +109,8 @@ MainWindow::MainWindow() :
         DialogInfo *pInfo = new DialogInfo;
         pInfo->show();
     });
+
+    setLineEditsEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -138,7 +142,7 @@ void MainWindow::startProcess()
     s.endGroup();
 
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
-    quint16 port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toInt());
+    uint16_t port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toUInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
 
     // format of gmp_connect.cfg
@@ -197,4 +201,12 @@ void MainWindow::startProcess()
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
 #endif
+}
+
+void MainWindow::setLineEditsEnabled(bool enabled)
+{
+    m_pUi->labelPort->setEnabled(enabled);
+    m_pUi->labelUrl->setEnabled(enabled);
+    m_pUi->editAlias->setEnabled(enabled);
+    m_pUi->nickname->setEnabled(enabled);
 }
