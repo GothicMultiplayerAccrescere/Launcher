@@ -6,6 +6,8 @@
         <file>style.qss</file>
         <file>diablo.ttf</file>
         <file>background.png</file>
+    </qresource>
+    <qresource prefix="/icons">
         <file>appicon.ico</file>
         <file>icons/close.png</file>
         <file>icons/close_hover.png</file>
