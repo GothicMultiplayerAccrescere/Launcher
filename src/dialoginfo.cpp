@@ -1,22 +1,28 @@
 #include "dialoginfo.h"
 #include "ui_dialoginfo.h"
 
-DialogInfo::DialogInfo(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::DialogInfo)
+DialogInfo::DialogInfo(QWidget *pParent) :
+    QDialog(pParent),
+    m_pUi(new Ui::DialogInfo),
+    m_Logo(":/logo/logo.png")
 {
-	ui->setupUi(this);
+	m_pUi->setupUi(this);
 
-	logo = new QPixmap(":/logo/logo.png");
-	scene = new QGraphicsScene(this);
-	scene->addPixmap(*logo);
-	ui->graphicsView->setScene(scene);
-	ui->graphicsView->show();
+	m_pScene = new QGraphicsScene(this);
+    m_pScene->addPixmap(m_Logo);
+    m_pUi->graphicsView->setScene(m_pScene);
+
+    QString version(GIT_TAG);
+    if (version.isEmpty())
+        version = "dev";
+
+    version = version + "-" + GIT_COMMIT;
+    m_pUi->labelVersion->setText(version);
+    m_pUi->labelBuildDate->setText(GIT_DATE);
 }
 
 DialogInfo::~DialogInfo()
 {
-	delete scene;
-	delete logo;
-    delete ui;
+    delete m_pScene;
+    delete m_pUi;
 }

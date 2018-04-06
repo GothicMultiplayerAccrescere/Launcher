@@ -1,6 +1,4 @@
-#ifndef DIALOGINFO_H
-#define DIALOGINFO_H
-
+#pragma once
 #include <QDialog>
 #include <QGraphicsScene>
 
@@ -13,13 +11,11 @@ class DialogInfo : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogInfo(QWidget *parent = 0);
-    ~DialogInfo();
+    explicit DialogInfo(QWidget *pParent = nullptr);
+    virtual ~DialogInfo() override;
 
 private:
-    Ui::DialogInfo *ui;
-	QPixmap* logo;
-	QGraphicsScene* scene;
+    Ui::DialogInfo *m_pUi;
+    QPixmap m_Logo;
+    QGraphicsScene *m_pScene;
 };
-
-#endif // DIALOGINFO_H

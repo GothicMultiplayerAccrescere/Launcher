@@ -15,14 +15,14 @@ execute_process(COMMAND
 execute_process(COMMAND
     "${GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE GIT_DATE
+    OUTPUT_VARIABLE GIT_COMMIT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(COMMAND
     "${GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
-    OUTPUT_VARIABLE GIT_COMMIT
+    OUTPUT_VARIABLE GIT_DATE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
@@ -83,7 +83,7 @@ else()
 endif()
 
 #TODO: can some windows folks make this work with vs plz?
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGIT_TAG=\"${GIT_TAG}\" -DGIT_DATE=\"${GIT_DATE}\" -DGIT_COMMIT=\"${GIT_COMMIT}\"")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGIT_TAG=\"\\\"${GIT_TAG}\\\"\" -DGIT_DATE=\"\\\"${GIT_DATE}\\\"\" -DGIT_COMMIT=\"\\\"${GIT_COMMIT}\\\"\"")
 
 # define the include directories
 include_directories(
