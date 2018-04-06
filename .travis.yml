@@ -36,16 +36,14 @@ matrix:
           - g++-5
 
 before_install:
+  - sudo add-apt-repository ppa:beineri/opt-qt-5.10.1-trusty -y
   - sudo apt-get update
-
-install:
-  - sudo apt-get install qtbase5-dev cmake
+  - sudo apt-get install qt510-meta-minimal cmake -y
 
 before_script:
   - mkdir build
   - cd build
-  - cmake --version
-  - ${COMPILER} --version
+  - . /opt/qt510/bin/qt510-env.sh
   - CXX=${COMPILER} cmake -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} ..
 
 script:
