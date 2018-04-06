@@ -58,7 +58,7 @@ if (MSVC)
     # fill the build definitions for the MSVC build subsystem in here
     set_property (GLOBAL PROPERTY USE_FOLDERS ON)
     set(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
-    set(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MT /GS- /GR- /utf-8")
+    set(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MD /GS- /GR- /utf-8")
     set(CMAKE_CXX_FLAGS_DEBUG "/GR- /MDd /Zi /Od /DCOMPILE_WITH_LOGS")
     add_definitions(-DUNICODE)
     add_definitions(-D_UNICODE)
