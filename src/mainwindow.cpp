@@ -9,7 +9,6 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QDataWidgetMapper>
-#include <QProcess>
 #include <QAction>
 #include <QDebug>
 #include <QMenu>
