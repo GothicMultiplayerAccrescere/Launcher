@@ -1,4 +1,4 @@
-# GothicMultiplayerLauncher [![Build Status](https://travis-ci.org/truepaddii/GothicMultiplayerLauncher.svg?branch=master)](https://travis-ci.org/TRUEPADDii/GothicMultiplayerLauncher)
+# GothicMultiplayerLauncher [![Build Status](https://travis-ci.org/truepaddii/GothicMultiplayerLauncher.svg?branch=master)](https://travis-ci.org/truepaddii/GothicMultiplayerLauncher)
 
 ```
 Note:
