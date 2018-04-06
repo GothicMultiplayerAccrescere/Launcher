@@ -2,26 +2,7 @@
     <qresource prefix="/logo">
         <file>logo.png</file>
     </qresource>
-    <qresource prefix="/">
-        <file>style.qss</file>
-        <file>diablo.ttf</file>
-        <file>background.png</file>
-    </qresource>
     <qresource prefix="/icons">
         <file>appicon.ico</file>
-        <file>icons/close.png</file>
-        <file>icons/close_hover.png</file>
-        <file>icons/com_sign.png</file>
-        <file>icons/dropdown_arrow.png</file>
-        <file>icons/friends_sign.png</file>
-        <file>icons/lock_sign.png</file>
-        <file>icons/menu.png</file>
-        <file>icons/minimize.png</file>
-        <file>icons/minimize_hover.png</file>
-        <file>icons/post.png</file>
-        <file>icons/post_hover.png</file>
-        <file>icons/pref_sign.png</file>
-        <file>icons/qmark_sign.png</file>
-        <file>icons/text_sign.png</file>
     </qresource>
 </RCC>

@@ -62,28 +62,24 @@ MainWindow::MainWindow() :
         m_pMapper->submit();
         if(m_pUi->listServer->selectionModel()->selectedRows().empty())
         {
+            setLineEditsEnabled(false);
             m_pMapper->clearMapping();
-            m_pUi->buttonJoin->setEnabled(false);
-            m_pUi->buttonRemoveServer->setEnabled(false);
             m_pMapper->setCurrentModelIndex(QModelIndex());
             m_pUi->labelPort->clear();
             m_pUi->labelUrl->clear();
             m_pUi->serverDescription->clear();
             m_pUi->nickname->clear();
             m_pUi->editAlias->clear();
-            setLineEditsEnabled(false);
         }
         else
         {
+            setLineEditsEnabled(true);
             m_pMapper->addMapping(m_pUi->labelPort, Server::P_Port);
             m_pMapper->addMapping(m_pUi->labelUrl, Server::P_Url);
             m_pMapper->addMapping(m_pUi->serverDescription, Server::P_Description);
             m_pMapper->addMapping(m_pUi->nickname, Server::P_Nick);
             m_pMapper->addMapping(m_pUi->editAlias, Server::P_Name);
-            m_pUi->buttonJoin->setEnabled(true);
-            m_pUi->buttonRemoveServer->setEnabled(true);
             m_pMapper->setCurrentIndex(m_pUi->listServer->selectionModel()->selectedRows().at(0).row());
-            setLineEditsEnabled(true);
         }
     });
 
@@ -107,7 +103,8 @@ MainWindow::MainWindow() :
     connect(m_pUi->actionAbout, &QAction::triggered, []()
     {
         DialogInfo *pInfo = new DialogInfo;
-        pInfo->show();
+        pInfo->exec();
+        delete pInfo;
     });
 
     setLineEditsEnabled(false);
@@ -205,6 +202,8 @@ void MainWindow::startProcess()
 
 void MainWindow::setLineEditsEnabled(bool enabled)
 {
+    m_pUi->buttonJoin->setEnabled(enabled);
+    m_pUi->buttonRemoveServer->setEnabled(enabled);
     m_pUi->labelPort->setEnabled(enabled);
     m_pUi->labelUrl->setEnabled(enabled);
     m_pUi->editAlias->setEnabled(enabled);
