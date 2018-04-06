@@ -6,21 +6,21 @@ project(GothicMultiplayerLauncher)
 set(TARGET_NAME gml)
 
 execute_process(COMMAND
-    "${GIT_EXECUTABLE}" tag
+    "$ENV{GIT_EXECUTABLE}" tag
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_TAG
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
 execute_process(COMMAND
-    "${GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
+    "$ENV{GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_COMMIT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(COMMAND
-    "${GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
+    "$ENV{GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_DATE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
