@@ -14,12 +14,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",		"Public Domain"
             VALUE "FileDescription",	"A custom launcher for Gothic Multiplayer: Accressere"
-            VALUE "FileVersion",		"1.0.0.0"
+            VALUE "FileVersion",		GIT_TAG
             VALUE "InternalName",		"Gothic Multiplayer Launcher"
             VALUE "LegalCopyright",		"Public Domain"
             VALUE "OriginalFilename",	"gml.exe"
             VALUE "ProductName",		"Gothic Multiplayer Launcher"
-            VALUE "ProductVersion",		"1.0.0.0"
+            VALUE "ProductVersion",		GIT_TAG
         END
     END
     BLOCK "VarFileInfo"
