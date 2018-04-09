@@ -200,7 +200,7 @@ void MainWindow::startProcess()
     if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
     {
         qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
-        qWarning() << "[Information]: Args: (" << args.c_str() << ")";
+        qWarning() << "[Information]: Args: (" << args << ")";
         qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
         return;
     }
