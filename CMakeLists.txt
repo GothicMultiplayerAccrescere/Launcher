@@ -5,22 +5,28 @@ project(GothicMultiplayerLauncher)
 # executable name
 set(TARGET_NAME gml)
 
+find_package(Git REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Threads REQUIRED)
+
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" tag
+    "${GIT_EXECUTABLE}" tag
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_TAG
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
+    "${GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_COMMIT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
+    "${GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_DATE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -29,11 +35,6 @@ execute_process(COMMAND
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Threads REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
@@ -46,9 +47,6 @@ add_subdirectory(lib/RakNet)
 # BEWARE that if you change something
 # it also has to be changed further down...
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
-
-# search for dependency libraries
-# find_library(QT Qt)
 
 # this block may add some buildflags
 # for the different defined compilers
