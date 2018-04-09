@@ -131,7 +131,7 @@ add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_
 add_dependencies(${TARGET_NAME} RakNet)
 
 if (MSVC)
-	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /level='requireAdministrator'")
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /level='requireAdministrator' /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 endif()
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})
