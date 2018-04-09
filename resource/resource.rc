@@ -12,11 +12,11 @@ BEGIN
     BEGIN
         BLOCK "040904E4"
         BEGIN
-            VALUE "CompanyName",		"Arcanum Softworks"
+            VALUE "CompanyName",		"Public Domain"
             VALUE "FileDescription",	"A custom launcher for Gothic Multiplayer: Accressere"
             VALUE "FileVersion",		"1.0.0.0"
             VALUE "InternalName",		"Gothic Multiplayer Launcher"
-            VALUE "LegalCopyright",		"Arcanum Softworks"
+            VALUE "LegalCopyright",		"Public Domain"
             VALUE "OriginalFilename",	"gml.exe"
             VALUE "ProductName",		"Gothic Multiplayer Launcher"
             VALUE "ProductVersion",		"1.0.0.0"
