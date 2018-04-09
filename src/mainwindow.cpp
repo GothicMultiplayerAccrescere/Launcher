@@ -194,7 +194,7 @@ void MainWindow::startProcess()
 
 #ifndef __unix__
     PROCESS_INFORMATION pi = { 0 };
-    STARTUPINFOA si = { 0 };
+    STARTUPINFOW si = { 0 };
     si.cb = sizeof(si);
 
     if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
