@@ -147,16 +147,16 @@ void MainWindow::startProcess()
     // port=28960
 
     QString filename;
-    std::string name;
+    QString name;
     if (!workingDir.isEmpty())
     {
         filename = workingDir + "/gmp_connect.cfg";
-        name = workingDir.toStdString() + "/" + s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
+        name = workingDir + "/" + s.value("gothic_binary", "Gothic2.exe").toString();
     }
     else
     {
         filename = "gmp_connect.cfg";
-        name = s.value("gothic_binary", "Gothic2.exe").toString().toStdString();
+        name = s.value("gothic_binary", "Gothic2.exe").toString();
     }
 
     QFile connectConf(filename);
@@ -171,15 +171,33 @@ void MainWindow::startProcess()
         connectConf.close();
     }
 
+    //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
+    QString args(name + " -session ZNOEXHND");
+    wchar_t *wcharName = new wchar_t[name.length() + 1];
+    memset(wcharName, 0, static_cast<size_t>(name.length() + 1));
+    name.toWCharArray(wcharName);
+
+    wchar_t *wcharArgs = new wchar_t[args.length() + 1];
+    memset(wcharArgs, 0, static_cast<size_t>(args.length() + 1));
+    args.toWCharArray(wcharArgs);
+
+    wchar_t *wcharWorkingDirectory = new wchar_t[workingDir.length() + 1];
+    memset(wcharWorkingDirectory, 0, static_cast<size_t>(workingDir.length() + 1));
+    workingDir.toWCharArray(wcharWorkingDirectory);
+
+    QString dllPath = launcherDir + "/gmp-r10/gmp.dll";
+    size_t dllPathSize = static_cast<size_t>(dllPath.length() + 1);
+    wchar_t *wcharDllPath = new wchar_t[dllPathSize];
+    memset(wcharDllPath, 0, dllPathSize);
+    dllPath.toWCharArray(wcharDllPath);
+    dllPathSize *= 2;
+
 #ifndef __unix__
     PROCESS_INFORMATION pi = { 0 };
     STARTUPINFOA si = { 0 };
     si.cb = sizeof(si);
 
-    //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
-    std::string args(name + " -session ZNOEXHND");
-
-    if (!CreateProcessA(name.c_str(), const_cast<char *>(args.c_str()), NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, workingDir.toStdString().c_str(), &si, &pi))
+    if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
     {
         qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
         qWarning() << "[Information]: Args: (" << args.c_str() << ")";
@@ -187,16 +205,20 @@ void MainWindow::startProcess()
         return;
     }
 
-    std::string dllPath = launcherDir.toStdString() + "/gmp-r10/gmp.dll";
-    LPVOID hLLA = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryA");
-    LPVOID hLib = VirtualAllocEx(pi.hProcess, NULL, dllPath.length(), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    WriteProcessMemory(pi.hProcess, hLib, dllPath.c_str(), dllPath.length(), NULL);
+    LPVOID hLLA = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+    LPVOID hLib = VirtualAllocEx(pi.hProcess, NULL, dllPathSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+    WriteProcessMemory(pi.hProcess, hLib, reinterpret_cast<char *>(wcharDllPath), dllPathSize, NULL);
     CreateRemoteThread(pi.hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)hLLA, hLib, NULL, NULL);
 
     ResumeThread(pi.hThread);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
 #endif
+
+    delete []wcharName;
+    delete []wcharArgs;
+    delete []wcharWorkingDirectory;
+    delete []wcharDllPath;
 }
 
 void MainWindow::setLineEditsEnabled(bool enabled)
