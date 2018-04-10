@@ -174,51 +174,92 @@ void MainWindow::startProcess()
     //-zMaxFrameRate: -zlog: -zwindow -zreparse nomenu -vdfs:physicalfirst
     QString args(name + " -session ZNOEXHND");
     wchar_t *wcharName = new wchar_t[name.length() + 1];
-    memset(wcharName, 0, static_cast<size_t>(name.length() + 1));
+    wcharName[name.length()] = 0;
     name.toWCharArray(wcharName);
 
     wchar_t *wcharArgs = new wchar_t[args.length() + 1];
-    memset(wcharArgs, 0, static_cast<size_t>(args.length() + 1));
+    wcharArgs[args.length()] = 0;
     args.toWCharArray(wcharArgs);
 
     wchar_t *wcharWorkingDirectory = new wchar_t[workingDir.length() + 1];
-    memset(wcharWorkingDirectory, 0, static_cast<size_t>(workingDir.length() + 1));
+    wcharWorkingDirectory[workingDir.length()] = 0;
     workingDir.toWCharArray(wcharWorkingDirectory);
 
     QString dllPath = launcherDir + "/gmp-r10/gmp.dll";
     size_t dllPathSize = static_cast<size_t>(dllPath.length() + 1);
     wchar_t *wcharDllPath = new wchar_t[dllPathSize];
-    memset(wcharDllPath, 0, dllPathSize);
+    wcharDllPath[dllPath.length()] = 0;
     dllPath.toWCharArray(wcharDllPath);
     dllPathSize *= 2;
+#define CLEANUP delete []wcharName; \
+    delete []wcharArgs; \
+    delete []wcharWorkingDirectory; \
+    delete []wcharDllPath;
 
 #ifndef __unix__
-    PROCESS_INFORMATION pi = { 0 };
-    STARTUPINFOW si = { 0 };
+    PROCESS_INFORMATION pi = { 0, 0, 0, 0 };
+    STARTUPINFOW si = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
     si.cb = sizeof(si);
 
     if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
     {
         qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
         qWarning() << "[Information]: Args: (" << args << ")";
+	qWarning() << "[Information]: Command: (" << name << ")";
         qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
+	CLEANUP;
         return;
     }
 
-    LPVOID hLLA = (LPVOID)GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+    LPVOID hLLA = reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW"));
+    if (!hLLA)
+    {
+        qWarning() << "[Error]: could not find LoadLibraryW";
+	TerminateProcess(pi.hProcess, 1);
+	CLEANUP;
+	return;
+    }
+
     LPVOID hLib = VirtualAllocEx(pi.hProcess, NULL, dllPathSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    WriteProcessMemory(pi.hProcess, hLib, reinterpret_cast<char *>(wcharDllPath), dllPathSize, NULL);
-    CreateRemoteThread(pi.hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)hLLA, hLib, NULL, NULL);
+    if (!hLib)
+    {
+        qWarning() << "[Error]: could not allocate remote memory";
+	TerminateProcess(pi.hProcess, 1);
+	CLEANUP;
+	return;
+    }
+
+    if (!WriteProcessMemory(pi.hProcess, hLib, reinterpret_cast<char *>(wcharDllPath), dllPathSize, NULL))
+    {
+        qWarning() << "[Error]: could not write remote memory";
+	TerminateProcess(pi.hProcess, 1);
+	CLEANUP;
+	return;
+    }
+
+    HANDLE remoteThread = CreateRemoteThread(pi.hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)hLLA, hLib, NULL, NULL);
+    if (!remoteThread)
+    {
+        qWarning() << "[Error]: could not create remote thread";
+	TerminateProcess(pi.hProcess, 1);
+	CLEANUP;
+	return;
+    }
+
+    if (WaitForSingleObject(remoteThread, 1000) == WAIT_TIMEOUT)
+    {
+        qWarning() << "[Error]: remote thread did not terminate";
+	TerminateProcess(pi.hProcess, 1);
+	CLEANUP;
+	return;
+    }
 
     ResumeThread(pi.hThread);
     CloseHandle(pi.hThread);
     CloseHandle(pi.hProcess);
 #endif
 
-    delete []wcharName;
-    delete []wcharArgs;
-    delete []wcharWorkingDirectory;
-    delete []wcharDllPath;
+    CLEANUP;
 }
 
 void MainWindow::setLineEditsEnabled(bool enabled)
