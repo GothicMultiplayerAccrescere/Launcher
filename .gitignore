@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.aps
 
 # Precompiled Headers
 *.gch
@@ -28,6 +29,9 @@
 bin/
 build/
 test/
+
+#special files
+src/resource.h
  
 # clion
 .idea/

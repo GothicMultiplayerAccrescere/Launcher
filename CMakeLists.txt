@@ -5,35 +5,38 @@ project(GothicMultiplayerLauncher)
 # executable name
 set(TARGET_NAME gml)
 
+find_package(Git REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Threads REQUIRED)
+
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" tag
+    "${GIT_EXECUTABLE}" tag
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_TAG
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+)
 
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
+    "${GIT_EXECUTABLE}" log -1 --pretty=format:%h --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_COMMIT
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
 execute_process(COMMAND
-    "$ENV{GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
+    "${GIT_EXECUTABLE}" log -1 --date=format:%Y-%m-%d\ %H:%M:%S --pretty=format:%ad --no-show-signature
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     OUTPUT_VARIABLE GIT_DATE
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/resource.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.h" @ONLY)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
-find_package(Threads REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
@@ -46,9 +49,6 @@ add_subdirectory(lib/RakNet)
 # BEWARE that if you change something
 # it also has to be changed further down...
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
-
-# search for dependency libraries
-# find_library(QT Qt)
 
 # this block may add some buildflags
 # for the different defined compilers
@@ -91,14 +91,6 @@ else()
     set(SOCKET_LIB wsock32 ws2_32)
 endif()
 
-#TODO: can some windows folks make this work with vs plz?
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGIT_TAG=\"\\\"${GIT_TAG}\\\"\" -DGIT_DATE=\"\\\"${GIT_DATE}\\\"\" -DGIT_COMMIT=\"\\\"${GIT_COMMIT}\\\"\"")
-
-# define the include directories
-include_directories(
-    "${CMAKE_SOURCE_DIR}/include"
-)
-
 # list include files to variables
 file (GLOB_RECURSE INCLUDE_FILES
     LIST_DIRECTORIES false
@@ -133,7 +125,7 @@ add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_
 add_dependencies(${TARGET_NAME} RakNet)
 
 if (MSVC)
-	SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /level='requireAdministrator'")
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 endif()
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})

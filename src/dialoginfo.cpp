@@ -1,5 +1,6 @@
 #include "dialoginfo.h"
 #include "ui_dialoginfo.h"
+#include "resource.h"
 
 DialogInfo::DialogInfo(QWidget *pParent) :
     QDialog(pParent),
