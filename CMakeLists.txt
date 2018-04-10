@@ -32,6 +32,8 @@ execute_process(COMMAND
     ERROR_QUIET OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/resource.h.in" "${CMAKE_CURRENT_SOURCE_DIR}/src/resource.h" @ONLY)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
@@ -89,14 +91,6 @@ else()
     set(SOCKET_LIB wsock32 ws2_32)
 endif()
 
-#TODO: can some windows folks make this work with vs plz?
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGIT_TAG=\"\\\"${GIT_TAG}\\\"\" -DGIT_DATE=\"\\\"${GIT_DATE}\\\"\" -DGIT_COMMIT=\"\\\"${GIT_COMMIT}\\\"\"")
-
-# define the include directories
-include_directories(
-    "${CMAKE_SOURCE_DIR}/include"
-)
-
 # list include files to variables
 file (GLOB_RECURSE INCLUDE_FILES
     LIST_DIRECTORIES false
@@ -131,7 +125,7 @@ add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_
 add_dependencies(${TARGET_NAME} RakNet)
 
 if (MSVC)
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /level='requireAdministrator' /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 endif()
 
 target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})

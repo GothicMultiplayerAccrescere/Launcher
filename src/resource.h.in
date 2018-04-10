@@ -1,0 +1,7 @@
+#pragma once
+
+#define IDI_APPICON 101
+
+#define GIT_TAG		"@GIT_TAG@"
+#define GIT_COMMIT	"@GIT_COMMIT@"
+#define GIT_DATE	"@GIT_DATE@"
