@@ -86,7 +86,7 @@ QVariant ServerModel::data(const QModelIndex &index, int role) const
 void ServerModel::updateData()
 {
     QSettings s;
-    s.beginWriteArray("Server");
+    s.beginWriteArray("server");
     s.remove("");
 
     for(int i = 0, end = m_Server.size(); i < end; ++i)
@@ -207,10 +207,10 @@ void ServerModel::appendRecord(const QString &name, const QString &url, quint16 
     int index = rowCount();
 
     QSettings s;
-    s.beginGroup("Misc");
+    s.beginGroup("misc");
     QString defaultNick = s.value("default_nick", "Nickname").toString();
     s.endGroup();
-    s.beginWriteArray("Server");
+    s.beginWriteArray("server");
     s.setArrayIndex(index);
     s.setValue("server_name", name);
     s.setValue("server_url", url);

@@ -1,8 +1,8 @@
 #include <QStringList>
 #include <QDebug>
 
-#include <RakNet/MessageIdentifiers.h>
-#include <RakNet/BitStream.h>
+#include <slikenet/MessageIdentifiers.h>
+#include <slikenet/BitStream.h>
 
 #include "gmpclient.h"
 
@@ -17,7 +17,7 @@ GMPClient::GMPClient(QObject *pParent) :
 GMPClient::~GMPClient()
 {
     m_Timer.stop();
-    RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+    SLNet::RakPeerInterface::DestroyInstance(m_pClient);
 }
 
 void GMPClient::start(const QString &address, quint16 port)
@@ -29,17 +29,17 @@ void GMPClient::start(const QString &address, quint16 port)
         m_Timer.stop();
 
     if (m_pClient)
-        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+        SLNet::RakPeerInterface::DestroyInstance(m_pClient);
 
-    m_pClient = RakNet::RakPeerInterface::GetInstance();
+    m_pClient = SLNet::RakPeerInterface::GetInstance();
 
     char password[] = "b5r6kQ6gp0GcpK4x";
 
-    RakNet::SocketDescriptor sd;
+    SLNet::SocketDescriptor sd;
     m_pClient->Startup(5, &sd, 1);
-    RakNet::ConnectionAttemptResult result = m_pClient->Connect(address.toStdString().c_str(), port, password, sizeof(password) - 1);
+    SLNet::ConnectionAttemptResult result = m_pClient->Connect(address.toStdString().c_str(), port, password, sizeof(password) - 1);
 
-    if (result != RakNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED)
+    if (result != SLNet::ConnectionAttemptResult::CONNECTION_ATTEMPT_STARTED)
     {
         qWarning() << "could not connect to server: " << result;
         return;
@@ -50,7 +50,7 @@ void GMPClient::start(const QString &address, quint16 port)
 
 void GMPClient::update()
 {
-    RakNet::Packet *pPacket = m_pClient->Receive();
+    SLNet::Packet *pPacket = m_pClient->Receive();
     if (!pPacket)
         return;
 
@@ -58,7 +58,7 @@ void GMPClient::update()
     {
     case static_cast<uint8_t>(DefaultMessageIDTypes::ID_CONNECTION_REQUEST_ACCEPTED):
     {
-        RakNet::BitStream stream;
+        SLNet::BitStream stream;
         stream.Write(MessageIdentifiers::GET_SERVER_INFO);
 
         m_pClient->Send(&stream, HIGH_PRIORITY, RELIABLE, 0, pPacket->systemAddress, 0);
@@ -83,11 +83,14 @@ void GMPClient::update()
     case static_cast<uint8_t>(DefaultMessageIDTypes::ID_REMOTE_DISCONNECTION_NOTIFICATION):
     {
         m_Timer.stop();
-        RakNet::RakPeerInterface::DestroyInstance(m_pClient);
+        SLNet::RakPeerInterface::DestroyInstance(m_pClient);
         m_pClient = nullptr;
         break;
     }
     }
+    //rakFree_Ex(pPacket, _FILE_AND_LINE_);
+    //RakNet::OP_DELETE(pPacket, _FILE_AND_LINE_);
+    //m_pClient->DeallocatePacket(pPacket);
 }
 
 bool readString(const uint8_t *pData, size_t maxlen, size_t &seek, QString &string)
