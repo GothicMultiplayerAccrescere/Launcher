@@ -162,7 +162,7 @@ void MainWindow::startProcess()
     QFile connectConf(filename);
     if (!connectConf.open(QFile::WriteOnly))
     {
-        //QMessageBox::critical(this, "Error", "Could not open " + filename);
+        QMessageBox::critical(this, "Error", "Could not open " + filename);
         qWarning() << "[Information]: Could not open gmp config file. Ignoring...";
     }
     else
@@ -185,7 +185,7 @@ void MainWindow::startProcess()
     wcharWorkingDirectory[workingDir.length()] = 0;
     workingDir.toWCharArray(wcharWorkingDirectory);
 
-    QString dllPath = launcherDir + "/gmp-r10/gmp.dll";
+    QString dllPath = launcherDir + "/gmp/gmp.dll";
     size_t dllPathSize = static_cast<size_t>(dllPath.length() + 1);
     wchar_t *wcharDllPath = new wchar_t[dllPathSize];
     wcharDllPath[dllPath.length()] = 0;
@@ -203,55 +203,53 @@ void MainWindow::startProcess()
 
     if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
     {
-        qWarning() << "[Error]: Starting Gothic failed: (#" << GetLastError() << ")";
-        qWarning() << "[Information]: Args: (" << args << ")";
-	qWarning() << "[Information]: Command: (" << name << ")";
-        qWarning() << "[Information]: Try running the launcher in admin mode and specify a valid start path.\n";
-	CLEANUP;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(this, "Error", "Couldn't start Gothic! Maybe your Gothic path is wrong.");
+		CLEANUP;
         return;
     }
 
     LPVOID hLLA = reinterpret_cast<LPVOID>(GetProcAddress(GetModuleHandle(L"kernel32.dll"), "LoadLibraryW"));
     if (!hLLA)
     {
-        qWarning() << "[Error]: could not find LoadLibraryW";
-	TerminateProcess(pi.hProcess, 1);
-	CLEANUP;
-	return;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(this, "Error", "Couldn't find LoadLibrary in kernel32.dll.");
+		CLEANUP;
+		return;
     }
 
     LPVOID hLib = VirtualAllocEx(pi.hProcess, NULL, dllPathSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
     if (!hLib)
     {
-        qWarning() << "[Error]: could not allocate remote memory";
-	TerminateProcess(pi.hProcess, 1);
-	CLEANUP;
-	return;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(this, "Error", "Couldn't allocate memory in Gothic process.");
+		CLEANUP;
+		return;
     }
 
     if (!WriteProcessMemory(pi.hProcess, hLib, reinterpret_cast<char *>(wcharDllPath), dllPathSize, NULL))
     {
-        qWarning() << "[Error]: could not write remote memory";
-	TerminateProcess(pi.hProcess, 1);
-	CLEANUP;
-	return;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(this, "Error", "Couldn't write to memory in Gothic process.");
+		CLEANUP;
+		return;
     }
 
     HANDLE remoteThread = CreateRemoteThread(pi.hProcess, NULL, NULL, (LPTHREAD_START_ROUTINE)hLLA, hLib, NULL, NULL);
     if (!remoteThread)
     {
-        qWarning() << "[Error]: could not create remote thread";
-	TerminateProcess(pi.hProcess, 1);
-	CLEANUP;
-	return;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(this, "Error", "Couldn't create Gothic thread.");
+		CLEANUP;
+		return;
     }
 
-    if (WaitForSingleObject(remoteThread, 1000) == WAIT_TIMEOUT)
+    if (WaitForSingleObject(remoteThread, 5000) == WAIT_TIMEOUT)
     {
-        qWarning() << "[Error]: remote thread did not terminate";
-	TerminateProcess(pi.hProcess, 1);
-	CLEANUP;
-	return;
+		TerminateProcess(pi.hProcess, 1);
+		QMessageBox::critical(0, "Error", "Gothic didn't responded!");
+		CLEANUP;
+		return;
     }
 
     ResumeThread(pi.hThread);
