@@ -8,7 +8,7 @@
 
 const char* invalidStyle = "background-color: #B22222; color: white;";
 // FIXME: incorporate hostname and ipv6 later if you want
-const QRegularExpression url = QRegularExpression("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+const QRegularExpression url = QRegularExpression("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
 
 DialogAddServer::DialogAddServer(QWidget *parent) :
     QDialog(parent),
