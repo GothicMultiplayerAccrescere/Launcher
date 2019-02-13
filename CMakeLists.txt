@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.8)
 
 # project name
 project(GothicMultiplayerLauncher)
@@ -38,58 +38,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
-include_directories(${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-
-add_subdirectory(lib/RakNet)
-
-# the following line provides the
-# different build types
-# BEWARE that if you change something
-# it also has to be changed further down...
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "" FORCE)
-
-# this block may add some buildflags
-# for the different defined compilers
-# extend this for more build systems later on
-if (MSVC)
-    # VISUAL STUDIO
-    # fill the build definitions for the MSVC build subsystem in here
-    set_property (GLOBAL PROPERTY USE_FOLDERS ON)
-    set(CMAKE_CXX_FLAGS " /MD /MP /EHsc /DNOMINMAX /D_CRT_SECURE_NO_WARNINGS")
-    set(CMAKE_CXX_FLAGS_RELEASE " /DNDEBUG /Ox /Ob2 /Oi /Ot /Oy /fp:fast /GF /FD /MD /GS- /GR- /utf-8")
-    set(CMAKE_CXX_FLAGS_DEBUG "/GR- /MDd /Zi /Od /DCOMPILE_WITH_LOGS")
-    add_definitions(-DUNICODE)
-    add_definitions(-D_UNICODE)
-    set(SOCKET_LIB wsock32 ws2_32)
-
-    # set up build pathes and add the executable definition
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/lib)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/lib)
-
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/bin)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR}/bin)
-elseif(UNIX)
-    # Compilation under Linux (Basically MinGW config + pthread flag, -static stdc(++) linkage (causes QApplication crash)
-    # fill the build definitions for Linux build subsystem in here
-    set(CMAKE_CXX_FLAGS "-std=c++14 -fpermissive -Wall -Wextra -pthread")
-    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all")
-    set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
-    add_definitions(-DUNICODE)
-    add_definitions(-D_UNICODE)
-else()
-    # MINGW
-    # fill the build definitions for the MinGW build subsystem in here
-    set(CMAKE_CXX_FLAGS " -std=c++14 -fpermissive -static-libstdc++ -static-libgcc -Wall -Wextra")
-    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all")
-    set(CMAKE_CXX_FLAGS_DEBUG " -g -Wold-style-cast -DCOMPILE_WITH_LOGS")
-    add_definitions(-DUNICODE)
-    add_definitions(-D_UNICODE)
-    set(SOCKET_LIB wsock32 ws2_32)
-endif()
+add_subdirectory(lib/slikenet)
 
 # list include files to variables
 file (GLOB_RECURSE INCLUDE_FILES
@@ -121,11 +70,21 @@ set(MISC
 
 qt5_wrap_ui(UI_HEADERS ${UI_FILES})
 
-add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
-add_dependencies(${TARGET_NAME} RakNet)
+add_definitions(-DUNICODE)
+add_definitions(-D_UNICODE)
 
-if (MSVC)
-    SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+if (MINGW OR MSVC)
+	set(SOCKET_LIB wsock32 ws2_32)
 endif()
 
-target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNet ${SOCKET_LIB})
+add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
+
+if (MSVC)
+	target_compile_options(${TARGET_NAME} PRIVATE /W3 /WX /EHsc /utf-8 /D_CRT_SECURE_NO_WARNINGS)
+    set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
+else()
+	target_compile_options(${TARGET_NAME} PRIVATE -std=c++14 -fpermissive -static-libstdc++ -static-libgcc -Wall -Wextra -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all)
+endif()
+
+target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNetLibStatic ${SOCKET_LIB})
+target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/slikenet/Source/include ${CMAKE_CURRENT_SOURCE_DIR} ${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})

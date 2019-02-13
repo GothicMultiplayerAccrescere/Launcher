@@ -3,11 +3,11 @@
 #include <QObject>
 #include <QTimer>
 
-#include <RakNet/RakPeerInterface.h>
+#include <slikenet/peerinterface.h>
 
 enum class MessageIdentifiers : uint8_t
 {
-    GET_SERVER_INFO = 185
+    GET_SERVER_INFO = 189
 };
 
 struct ServerInfo
@@ -39,7 +39,7 @@ signals:
     void serverChecked(const ServerInfo &info);
 
 private:
-    RakNet::RakPeerInterface *m_pClient;
+    SLNet::RakPeerInterface *m_pClient;
 
     QTimer m_Timer;
 };
