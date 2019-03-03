@@ -12,6 +12,7 @@
 #include <QAction>
 #include <QDebug>
 #include <QMenu>
+#include <QFileInfo>
 
 #include "dialogaddserver.h"
 #include "ui_mainwindow.h"
@@ -120,23 +121,18 @@ void MainWindow::startProcess()
     if (index.size() != 1)
         return;
 
-    int row = index.front().row();
-    qWarning() << "[Information]: Connecting to: " << m_pServerModel->data(m_pServerModel->index(row, Server::P_ServerName), Qt::DisplayRole).toString();
-
-    QString launcherDir = QCoreApplication::applicationDirPath();
-
     QSettings s;
     s.beginGroup("gothic");
     QString workingDir = s.value("working_directory").toString();
     if (workingDir.isEmpty())
     {
-        qWarning() << "[Warning]: Could not find Gothic directory. Using defaults.";
         workingDir = QCoreApplication::applicationDirPath();
     }
 
     workingDir += "/system";
     s.endGroup();
 
+	int row = index.front().row();
     QString url = m_pServerModel->data(m_pServerModel->index(row, Server::P_Url), Qt::DisplayRole).toString();
     uint16_t port = static_cast<uint16_t>(m_pServerModel->data(m_pServerModel->index(row, Server::P_Port), Qt::DisplayRole).toUInt());
     QString nick = m_pServerModel->data(m_pServerModel->index(row, Server::P_Nick), Qt::DisplayRole).toString();
@@ -159,11 +155,18 @@ void MainWindow::startProcess()
         name = s.value("gothic_binary", "Gothic2.exe").toString();
     }
 
+	QFileInfo checkGothic(name);
+	// check if file exists and if yes: Is it really a file and no directory?
+	if (!checkGothic.exists() || !checkGothic.isFile())
+	{
+		QMessageBox::critical(this, "Error", "Couldn't find Gothic2.exe in path:\n" + name + "\n\nMake sure the path is correct.");
+		return;
+	}
+
     QFile connectConf(filename);
     if (!connectConf.open(QFile::WriteOnly))
     {
-        QMessageBox::critical(this, "Error", "Could not open " + filename);
-        qWarning() << "[Information]: Could not open gmp config file. Ignoring...";
+        QMessageBox::critical(this, "Error", "Couldn't open " + filename);
     }
     else
     {
@@ -185,7 +188,7 @@ void MainWindow::startProcess()
     wcharWorkingDirectory[workingDir.length()] = 0;
     workingDir.toWCharArray(wcharWorkingDirectory);
 
-    QString dllPath = launcherDir + "/gmp/gmp.dll";
+    QString dllPath = QCoreApplication::applicationDirPath() + "/gmp/gmp.dll";
     size_t dllPathSize = static_cast<size_t>(dllPath.length() + 1);
     wchar_t *wcharDllPath = new wchar_t[dllPathSize];
     wcharDllPath[dllPath.length()] = 0;
@@ -196,6 +199,15 @@ void MainWindow::startProcess()
     delete []wcharWorkingDirectory; \
     delete []wcharDllPath;
 
+	QFileInfo checkGMP(dllPath);
+	// check if file exists and if yes: Is it really a file and no directory?
+	if (!checkGMP.exists() || !checkGMP.isFile())
+	{
+		QMessageBox::critical(this, "Error", "Couldn't find gmp.dll in path:\n" + dllPath + "\n\nMake sure the file exists and is not blocked by an anti virus.");
+		CLEANUP;
+		return;
+	}
+
 #ifndef __unix__
     PROCESS_INFORMATION pi = { 0, 0, 0, 0 };
     STARTUPINFOW si = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -204,7 +216,7 @@ void MainWindow::startProcess()
     if (!CreateProcessW(wcharName, wcharArgs, NULL, NULL, FALSE, CREATE_SUSPENDED, NULL, wcharWorkingDirectory, &si, &pi))
     {
 		TerminateProcess(pi.hProcess, 1);
-		QMessageBox::critical(this, "Error", "Couldn't start Gothic! Maybe your Gothic path is wrong.");
+		QMessageBox::critical(this, "Error", "Couldn't start Gothic!");
 		CLEANUP;
         return;
     }
