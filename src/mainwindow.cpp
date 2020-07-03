@@ -170,7 +170,7 @@ void MainWindow::startProcess()
     }
     else
     {
-        connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLatin1());
+        connectConf.write(("nickname=" + nick + "\nip=" + url + "\nport=" + QString::number(port)).toLocal8Bit());
         connectConf.close();
     }
 
