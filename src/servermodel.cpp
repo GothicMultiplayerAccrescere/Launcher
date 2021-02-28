@@ -8,6 +8,9 @@
 
 ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
+{ }
+
+void ServerModel::Initialize()
 {
     QSettings s;
     m_Timer.setInterval(s.value("misc/refresh_rate", 10000).toInt());
