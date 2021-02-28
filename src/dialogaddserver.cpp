@@ -1,7 +1,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QRegExp>
+#include <QRegularExpression>
 
 #include "dialogaddserver.h"
 #include "ui_dialogaddserver.h"

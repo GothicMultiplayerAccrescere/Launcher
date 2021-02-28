@@ -8,6 +8,9 @@
 
 ServerModel::ServerModel(QObject *pParent) :
     QAbstractTableModel(pParent)
+{ }
+
+void ServerModel::Initialize()
 {
     QSettings s;
     m_Timer.setInterval(s.value("misc/refresh_rate", 10000).toInt());
@@ -23,6 +26,7 @@ ServerModel::ServerModel(QObject *pParent) :
         pServer->setPort(static_cast<uint16_t>(s.value("server_port").toInt()));
     }
     s.endArray();
+
     emit dataChanged(index(0, 0), index(rowCount() - 1, Server::P_Max - 1));
 
     m_Timer.start();

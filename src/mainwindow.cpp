@@ -34,6 +34,8 @@ MainWindow::MainWindow() :
 {
     m_pUi->setupUi(this);
 
+    this->m_pServerModel->Initialize();
+
     m_pMapper->setModel(m_pServerModel);
     m_pMapper->setSubmitPolicy(QDataWidgetMapper::AutoSubmit);
 

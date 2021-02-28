@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QDialog>
-#include <QRegExpValidator>
+#include <QRegularExpressionValidator>
 
 namespace Ui {
     class DialogAddServer;

@@ -6,9 +6,9 @@ project(GothicMultiplayerLauncher)
 set(TARGET_NAME gml)
 
 find_package(Git REQUIRED)
-find_package(Qt5Widgets REQUIRED)
-find_package(Qt5Core REQUIRED)
-find_package(Qt5Gui REQUIRED)
+find_package(Qt6Widgets REQUIRED)
+find_package(Qt6Core REQUIRED)
+find_package(Qt6Gui REQUIRED)
 find_package(Threads REQUIRED)
 
 execute_process(COMMAND
@@ -68,7 +68,7 @@ set(MISC
     README.md
 )
 
-qt5_wrap_ui(UI_HEADERS ${UI_FILES})
+qt6_wrap_ui(UI_HEADERS ${UI_FILES})
 
 add_definitions(-DUNICODE)
 add_definitions(-D_UNICODE)
@@ -80,11 +80,11 @@ endif()
 add_executable(${TARGET_NAME} ${INCLUDE_FILES} ${SRC_FILES} ${UI_HEADERS} ${RES_FILES} ${MISC})
 
 if (MSVC)
-	target_compile_options(${TARGET_NAME} PRIVATE /W3 /WX /EHsc /utf-8 /D_CRT_SECURE_NO_WARNINGS)
+    target_compile_options(${TARGET_NAME} PRIVATE /W3 /WX /EHsc /utf-8 /D_CRT_SECURE_NO_WARNINGS)
     set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS " /MANIFESTUAC:\"level='requireAdministrator'\" /SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 else()
 	target_compile_options(${TARGET_NAME} PRIVATE -std=c++14 -fpermissive -static-libstdc++ -static-libgcc -Wall -Wextra -O3 -s -Wclobbered -Wignored-qualifiers -Wuninitialized -Wold-style-cast -Wreorder -Wno-unused-parameter -Wno-unknown-pragmas -Wno-unused-function -fno-rtti -fno-jump-tables -ffunction-sections -fdata-sections -fstack-protector-strong -Wl,--gc-sections -Wl,--strip-all)
 endif()
 
-target_link_libraries(${TARGET_NAME} Qt5::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNetLibStatic ${SOCKET_LIB})
+target_link_libraries(${TARGET_NAME} Qt6::Widgets ${CMAKE_THREAD_LIBS_INIT} RakNetLibStatic ${SOCKET_LIB})
 target_include_directories(${TARGET_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/slikenet/Source/include ${CMAKE_CURRENT_SOURCE_DIR} ${Qt5Widgets_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${Qt5Network_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
