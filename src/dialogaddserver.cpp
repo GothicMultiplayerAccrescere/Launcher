@@ -7,8 +7,9 @@
 #include "ui_dialogaddserver.h"
 
 const char* invalidStyle = "background-color: #B22222; color: white;";
-// FIXME: incorporate hostname and ipv6 later if you want
-const QRegularExpression url = QRegularExpression("^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
+// FIXME: incorporate ipv6 later if you want
+const QRegularExpression ip4Match = QRegularExpression(R"(^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)");
+const QRegularExpression domainMatch = QRegularExpression(R"(^([\w\d]+\.[\w\d]+)$)");
 
 DialogAddServer::DialogAddServer(QWidget *parent) :
     QDialog(parent),
@@ -23,7 +24,7 @@ DialogAddServer::DialogAddServer(QWidget *parent) :
 		QLineEdit* addressLine = this->m_pUi->editUrl;
 
 		// check url for regex match and set validity
-		if (!url.match(addressLine->text()).hasMatch())
+		if (!ip4Match.match(addressLine->text()).hasMatch() && !domainMatch.match(addressLine->text()).hasMatch())
 		{
 			addressLine->setStyleSheet(invalidStyle);
 			return;
