@@ -21,6 +21,7 @@ struct ServerInfo
     int32_t averagePing;
 
     bool deserialize(const uint8_t *pData, size_t maxlen, size_t &seek);
+	void empty();
 };
 
 class GMPClient : public QObject
@@ -33,6 +34,7 @@ public:
     void start(const QString &address, quint16 port);
 
 public slots:
+	/** checks received packages (if any) */
     void update();
 
 signals:

@@ -65,7 +65,7 @@ void GMPClient::update()
 			}
 			case static_cast<uint8_t>(MessageIdentifiers::GET_SERVER_INFO):
 			{
-				ServerInfo info;
+				ServerInfo info; // write data from server into info-object
 				size_t seek = 2;
 				if (!info.deserialize(pPacket->data, pPacket->length, seek))
 				{
@@ -75,9 +75,16 @@ void GMPClient::update()
 
 				info.averagePing = m_pClient->GetAveragePing(pPacket->systemAddress);
 
-				emit serverChecked(info);
+				emit serverChecked(info); // give info-object to checking server-object
 				break;
 			}
+			case static_cast<uint8_t>(DefaultMessageIDTypes::ID_CONNECTION_ATTEMPT_FAILED):
+			{
+				ServerInfo info;
+				info.empty();
+				emit serverChecked(info); // give info-object to checking server-object
+			}
+			[[fallthrough]];
 			case static_cast<uint8_t>(DefaultMessageIDTypes::ID_DISCONNECTION_NOTIFICATION):
 			case static_cast<uint8_t>(DefaultMessageIDTypes::ID_REMOTE_DISCONNECTION_NOTIFICATION):
 			{
@@ -132,4 +139,15 @@ bool ServerInfo::deserialize(const uint8_t *pData, size_t maxlen, size_t &seek)
         return false;
 
     return true;
+}
+
+void ServerInfo::empty()
+{
+	serverName = "";
+	gamemode = "";
+	version = "";
+	player = "";
+	bots = "";
+	description = "";
+	averagePing = -1;
 }
