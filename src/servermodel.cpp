@@ -13,6 +13,7 @@ ServerModel::ServerModel(QObject *pParent) :
 void ServerModel::Initialize()
 {
     QSettings s;
+	// refresh server status every "misc/refresh_rate" or 10,000 msec
     m_Timer.setInterval(s.value("misc/refresh_rate", 10000).toInt());
 
     int rows = s.beginReadArray("server");
@@ -29,7 +30,7 @@ void ServerModel::Initialize()
     emit dataChanged(index(0, 0), index(rowCount() - 1, Server::P_Max - 1));
 
     m_Timer.start();
-    updateRecords();
+	updateRecords();
 }
 
 int ServerModel::rowCount(const QModelIndex &parent) const

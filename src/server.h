@@ -51,6 +51,7 @@ public:
     inline QString ping() const { return QString::number(m_PingCurrent); }
 
 public slots:
+	/** starts the update function or executes an update */
     void update();
 
 private slots:
