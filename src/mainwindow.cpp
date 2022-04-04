@@ -81,7 +81,10 @@ MainWindow::MainWindow() :
             m_pMapper->addMapping(m_pUi->serverDescription, Server::P_Description);
             m_pMapper->addMapping(m_pUi->nickname, Server::P_Nick);
             m_pMapper->addMapping(m_pUi->editAlias, Server::P_Name);
-            m_pMapper->setCurrentIndex(m_pUi->listServer->selectionModel()->selectedRows().at(0).row());
+        	const auto idx = m_pUi->listServer->selectionModel()->selectedRows().at(0).row();
+            m_pMapper->setCurrentIndex(idx);
+        	// update selected row
+			m_pServerModel->updateRecord(idx);
         }
     });
 

@@ -200,6 +200,11 @@ QVariant ServerModel::headerData(int section, Qt::Orientation orientation, int r
     return QVariant();
 }
 
+void ServerModel::updateRecord(int row)
+{
+	m_Server[row]->update();
+}
+
 void ServerModel::updateRecords()
 {
     for(Server *pServer : m_Server)

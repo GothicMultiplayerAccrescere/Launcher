@@ -23,6 +23,7 @@ public:
     void updateData();
 
 public slots:
+	void updateRecord(int row);
     void updateRecords();
     void appendRecord(const QString &name, const QString &url, quint16 port);
 
