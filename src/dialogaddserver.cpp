@@ -9,7 +9,7 @@
 const char* invalidStyle = "background-color: #B22222; color: white;";
 // FIXME: incorporate ipv6 later if you want
 const QRegularExpression ip4Match = QRegularExpression(R"(^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$)");
-const QRegularExpression domainMatch = QRegularExpression(R"(^([\w\d]+\.[\w\d]+)$)");
+const QRegularExpression domainMatch = QRegularExpression(R"(^(([\w\d]+\.)+[\w\d]+)$)");
 
 DialogAddServer::DialogAddServer(QWidget *parent) :
     QDialog(parent),
