@@ -82,6 +82,7 @@ void GMPClient::update()
 			{
 				ServerInfo info;
 				info.empty();
+				info.serverName = "Server doesn't respond";
 				emit serverChecked(info); // give info-object to checking server-object
 			}
 			[[fallthrough]];
@@ -94,7 +95,7 @@ void GMPClient::update()
 		}
 	}
 
-	// Destory client instance outside packet loop, so the packet can be safely deallocated in the loop.
+	// Destroy client instance outside packet loop, so the packet can be safely de-allocated in the loop.
 	if (disconnected)
 	{
 		m_Timer.stop();
