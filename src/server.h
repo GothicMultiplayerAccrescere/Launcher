@@ -72,6 +72,7 @@ private:
     QString m_PlayerCount;
     QString m_BotCount;
     qint64 m_PingCurrent;
+	bool m_ServerSeen;
 
     GMPClient *m_pClient;
 };
